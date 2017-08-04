@@ -60,30 +60,45 @@ public class MatchService {
         RestTemplate restTemplate = new RestTemplate();
         String response = restTemplate.getForObject(getHeroUrl, String.class);
         MatchDetailEntity matchDetailEntity = JsonMapper.nonDefaultMapper().fromJson(response, MatchDetailEntity.class);
-        MatchDetail matchDetail = matchDetailEntity.getResult();
-        return matchDetail;
+        return matchDetailEntity.getResult();
     }
 
     public BanPickDetails getBanPick(int leagueId, long matchId) {
         BanPickDetails banPickDetails = new BanPickDetails();
         List<Match> matches = getLeagueAfter(leagueId, matchId);
         List<Long> matchIds = new ArrayList<>();
-        matches.stream().forEach(match -> {
+        matches.forEach(match -> {
             matchIds.add(match.getMatch_id());
         });
-        matchIds.stream().forEach(match_Id -> {
+        matchIds.forEach(match_Id -> {
             MatchDetail matchDetail = getMatchDetail(match_Id);
             List<BanPicks> banPickList = matchDetail.getPicks_bans();
-            banPickList.stream().forEach(banPick -> {
-                String isPick = banPick.getIs_pick();
-                if (StringUtils.equals(isPick, "true")) {
-                    banPickDetails.pickHero(banPick.getHero_id());
-                } else {
-                    banPickDetails.banHero(banPick.getHero_id());
-                }
-            });
+            String isRadiantWin = matchDetail.getRadiant_win();
+            if (StringUtils.equals(isRadiantWin, "true")) {
+                // team 0 win
+                banPickWin(banPickDetails, banPickList, 0);
+            } else {
+                // team 1 win
+                banPickWin(banPickDetails, banPickList, 1);
+            }
         });
         return banPickDetails;
+    }
+
+    private void banPickWin(BanPickDetails banPickDetails, List<BanPicks> banPickList, int win_team_id) {
+        banPickList.forEach(banPick -> {
+            String isPick = banPick.getIs_pick();
+            if (StringUtils.equals(isPick, "true")) {
+                banPickDetails.pickHero(banPick.getHero_id());
+                if (banPick.getTeam() == win_team_id) {
+                    banPickDetails.addWinCount(banPick.getHero_id());
+                } else {
+                    banPickDetails.addLoseCount(banPick.getHero_id());
+                }
+            } else {
+                banPickDetails.banHero(banPick.getHero_id());
+            }
+        });
     }
 
 }

@@ -60,6 +60,7 @@ public class MatchEndpoint {
         HeroesEntity heroesEntity = heroService.listAll();
         List<Bean> heroes = heroesEntity.getResult().getHeroes();
         banPickDetails.setHeroName(heroes);
+        getWinRate(banPickDetails);
         return sort(banPickDetails);
     }
 
@@ -79,5 +80,14 @@ public class MatchEndpoint {
             heroes.remove(index);
         }
         return heroList;
+    }
+
+    private void getWinRate(BanPickDetails banPickDetails) {
+        HashMap<Integer, BanPickDetails.Hero> heroes = banPickDetails.getHeroes();
+        for (int heroId : heroes.keySet()) {
+            int winCount = heroes.get(heroId).getWinCount();
+            int loseCount = heroes.get(heroId).getLoseCount();
+            heroes.get(heroId).setWinRate(winCount / (winCount + loseCount));
+        }
     }
 }

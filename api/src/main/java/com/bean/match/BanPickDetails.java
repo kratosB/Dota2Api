@@ -50,6 +50,28 @@ public class BanPickDetails {
         }
     }
 
+    public void addWinCount(int heroId){
+        if (heroes.containsKey(heroId)) {
+            Hero hero = heroes.get(heroId);
+            hero.winCount = hero.winCount + 1;
+        } else {
+            Hero hero = new Hero();
+            hero.winCount = 1;
+            heroes.put(heroId, hero);
+        }
+    }
+
+    public void addLoseCount(int heroId){
+        if (heroes.containsKey(heroId)) {
+            Hero hero = heroes.get(heroId);
+            hero.loseCount = hero.loseCount + 1;
+        } else {
+            Hero hero = new Hero();
+            hero.loseCount = 1;
+            heroes.put(heroId, hero);
+        }
+    }
+
     public void setHeroName(List<Bean> heroesBean) {
         heroesBean.stream().forEach(heroBean -> {
             if (heroes.containsKey(heroBean.getId())) {
@@ -68,6 +90,12 @@ public class BanPickDetails {
         private int pickCount;
 
         private int banCount;
+
+        private int winCount;
+
+        private int loseCount;
+
+        private double winRate;
 
         public String getHeroName() {
             return heroName;
@@ -99,6 +127,30 @@ public class BanPickDetails {
 
         public void setBanCount(int banCount) {
             this.banCount = banCount;
+        }
+
+        public int getWinCount() {
+            return winCount;
+        }
+
+        public void setWinCount(int winCount) {
+            this.winCount = winCount;
+        }
+
+        public int getLoseCount() {
+            return loseCount;
+        }
+
+        public void setLoseCount(int loseCount) {
+            this.loseCount = loseCount;
+        }
+
+        public double getWinRate() {
+            return winRate;
+        }
+
+        public void setWinRate(double winRate) {
+            this.winRate = winRate;
         }
     }
 }
