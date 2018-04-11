@@ -1,8 +1,10 @@
 package com.api;
 
+import com.api.req.GetMatchHistoryReq;
 import com.bean.heroitem.Bean;
 import com.bean.heroitem.HeroesEntity;
 import com.bean.match.*;
+import com.dao.entity.Hero;
 import com.service.HeroService;
 import com.service.MatchService;
 import io.swagger.annotations.ApiOperation;
@@ -38,10 +40,16 @@ public class MatchEndpoint {
         return matchService.getLeague(id);
     }
 
+    @ApiOperation("获取比赛历史")
+    @RequestMapping(value = "/api/match/getMatchHistory", method = RequestMethod.POST)
+    public String getMatchHistory(@RequestBody GetMatchHistoryReq getMatchHistoryReq) {
+        return matchService.getMatchHistory(getMatchHistoryReq);
+    }
+
     @ApiOperation("列取赛事信息_正赛（从某场比赛开始）")
     @RequestMapping(value = "/api/match/getLeagueAfter", method = RequestMethod.GET)
     public List<Match> getLeagueAfter(@ApiParam(name = "leagueId", required = true) @RequestParam(name = "leagueId") int leagueId,
-            @ApiParam(name = "matchId", required = true) @RequestParam(name = "matchId") long matchId) {
+                                      @ApiParam(name = "matchId", required = true) @RequestParam(name = "matchId") long matchId) {
         return matchService.getLeagueAfter(leagueId, matchId);
     }
 
@@ -53,20 +61,29 @@ public class MatchEndpoint {
 
     @ApiOperation("获取赛事信息_正赛（从某场比赛开始）ban pick数据")
     @RequestMapping(value = "/api/match/getBanPick", method = RequestMethod.GET)
-    public List<BanPickDetails.Hero> getBanPick(
+    public List<BanPickDetails.BanPickHero> getBanPick(
             @ApiParam(name = "leagueId", required = true) @RequestParam(name = "leagueId") int leagueId,
             @ApiParam(name = "matchId", required = true) @RequestParam(name = "matchId") long matchId) {
         BanPickDetails banPickDetails = matchService.getBanPick(leagueId, matchId);
-        HeroesEntity heroesEntity = heroService.listAll();
-        List<Bean> heroes = heroesEntity.getResult().getHeroes();
-        banPickDetails.setHeroName(heroes);
+        List<Hero> heroList = heroService.listAll();
+        banPickDetails.setHeroName(heroList);
         getWinRate(banPickDetails);
         return sort(banPickDetails);
     }
 
-    private List<BanPickDetails.Hero> sort(BanPickDetails banPickDetails) {
-        List<BanPickDetails.Hero> heroList = new ArrayList<>();
-        HashMap<Integer, BanPickDetails.Hero> heroes = banPickDetails.getHeroes();
+    @ApiOperation("根据英雄id获取所有比赛的比赛id")
+    @RequestMapping(value = "/api/match/getMatchHistoryByAllHero", method = RequestMethod.GET)
+    public String getMatchHistoryByAllHero(
+            @ApiParam(name = "steamId", required = false) @RequestParam(name = "steamId", required = false) String steamId) {
+        if (steamId == null) {
+            steamId = "76561198088256001";
+        }
+        return matchService.getMatchHistoryByAllHero(steamId);
+    }
+
+    private List<BanPickDetails.BanPickHero> sort(BanPickDetails banPickDetails) {
+        List<BanPickDetails.BanPickHero> heroList = new ArrayList<>();
+        HashMap<Integer, BanPickDetails.BanPickHero> heroes = banPickDetails.getHeroes();
         while (!heroes.keySet().isEmpty()) {
             int maxCount = 0;
             int index = 0;
@@ -83,11 +100,15 @@ public class MatchEndpoint {
     }
 
     private void getWinRate(BanPickDetails banPickDetails) {
-        HashMap<Integer, BanPickDetails.Hero> heroes = banPickDetails.getHeroes();
+        HashMap<Integer, BanPickDetails.BanPickHero> heroes = banPickDetails.getHeroes();
         for (int heroId : heroes.keySet()) {
             int winCount = heroes.get(heroId).getWinCount();
             int loseCount = heroes.get(heroId).getLoseCount();
-            heroes.get(heroId).setWinRate(winCount / (winCount + loseCount));
+            if (winCount + loseCount == 0) {
+                System.out.println(heroes.get(heroId).getHeroName());
+            } else {
+                heroes.get(heroId).setWinRate(winCount / (winCount + loseCount));
+            }
         }
     }
 }

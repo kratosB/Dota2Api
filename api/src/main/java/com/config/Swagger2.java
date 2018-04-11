@@ -26,8 +26,7 @@ public class Swagger2 {
     }
 
     private ApiInfo apiInfo() {
-        return new ApiInfoBuilder().title("客户营销RESTful APIs").contact(new Contact("钱旭", null, "xu.qian@iqunxing.com"))
-                .version("1.0").build();
+        return new ApiInfoBuilder().title("dota2 APIs").contact(new Contact("bzq", null, null)).version("1.0").build();
     }
 
 }

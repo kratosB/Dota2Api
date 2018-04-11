@@ -1,7 +1,5 @@
 package com.bean.heroitem;
 
-import org.springframework.boot.autoconfigure.domain.EntityScan;
-
 import java.util.List;
 
 /**

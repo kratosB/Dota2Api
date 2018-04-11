@@ -1,17 +1,31 @@
 package com.service;
 
-import com.bean.match.*;
-import com.util.JsonMapper;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+import com.api.req.GetMatchHistoryReq;
+import com.bean.match.BanPickDetails;
+import com.bean.match.BanPicks;
+import com.bean.match.LeaguesEntity;
+import com.bean.match.Match;
+import com.bean.match.MatchDetail;
+import com.bean.match.MatchDetailEntity;
+import com.bean.match.MatchesEntity;
+import com.bean.match.MatchesHistory;
+import com.dao.entity.Hero;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.util.JsonMapper;
+
 /**
  * Created on 2017/06/15.
+ * 
+ * @author zhiqiang bao
  */
 @Service
 public class MatchService {
@@ -24,14 +38,20 @@ public class MatchService {
 
     private String str2 = "&";
 
+    private HeroService heroService;
+
+    @Autowired
+    public MatchService(HeroService heroService) {
+        this.heroService = heroService;
+    }
+
     public LeaguesEntity listLeague() {
         String getLeague = "GetLeagueListing/";
         String language = "language=zh";
         String getHeroUrl = steamUrl + getLeague + version + key + str2 + language;
         RestTemplate restTemplate = new RestTemplate();
         String response = restTemplate.getForObject(getHeroUrl, String.class);
-        LeaguesEntity leaguesEntity = JsonMapper.nonDefaultMapper().fromJson(response, LeaguesEntity.class);
-        return leaguesEntity;
+        return JsonMapper.nonDefaultMapper().fromJson(response, LeaguesEntity.class);
     }
 
     public MatchesEntity getLeague(int leagueId) {
@@ -40,8 +60,45 @@ public class MatchService {
         String getHeroUrl = steamUrl + getMatchHistory + version + key + str2 + leagueIdStr;
         RestTemplate restTemplate = new RestTemplate();
         String response = restTemplate.getForObject(getHeroUrl, String.class);
-        MatchesEntity matchesEntity = JsonMapper.nonDefaultMapper().fromJson(response, MatchesEntity.class);
-        return matchesEntity;
+        return JsonMapper.nonDefaultMapper().fromJson(response, MatchesEntity.class);
+    }
+
+    public String getMatchHistory(GetMatchHistoryReq getMatchHistoryReq) {
+        String getMatchHistory = "GetMatchHistory/";
+        StringBuilder sb = new StringBuilder();
+        sb.append(steamUrl).append(getMatchHistory).append(version).append(key);
+        if (getMatchHistoryReq.getAccountId() != null) {
+            sb.append(str2).append("account_id=").append(getMatchHistoryReq.getAccountId());
+        }
+        if (getMatchHistoryReq.getGameMode() != null) {
+            sb.append(str2).append("game_mode=").append(getMatchHistoryReq.getGameMode());
+        }
+        if (getMatchHistoryReq.getHeroId() != null) {
+            sb.append(str2).append("hero_id=").append(getMatchHistoryReq.getHeroId());
+        }
+        if (getMatchHistoryReq.getLeagueId() != null) {
+            sb.append(str2).append("league_id=").append(getMatchHistoryReq.getLeagueId());
+        }
+        if (getMatchHistoryReq.getMatchesRequested() != null) {
+            sb.append(str2).append("matches_requested=").append(getMatchHistoryReq.getMatchesRequested());
+        }
+        if (getMatchHistoryReq.getMinPlayers() != null) {
+            sb.append(str2).append("min_players=").append(getMatchHistoryReq.getMinPlayers());
+        }
+        if (getMatchHistoryReq.getSkill() != null) {
+            sb.append(str2).append("skill=").append(getMatchHistoryReq.getSkill());
+        }
+        if (getMatchHistoryReq.getStartAtMatchId() != null) {
+            sb.append(str2).append("start_at_match_id=").append(getMatchHistoryReq.getStartAtMatchId());
+        }
+        if (getMatchHistoryReq.getDateMax() != null) {
+            sb.append(str2).append("date_max=").append(getMatchHistoryReq.getDateMax());
+        }
+        if (getMatchHistoryReq.getDateMin() != null) {
+            sb.append(str2).append("date_min=").append(getMatchHistoryReq.getDateMin());
+        }
+        RestTemplate restTemplate = new RestTemplate();
+        return restTemplate.getForObject(sb.toString(), String.class);
     }
 
     public List<Match> getLeagueAfter(int leagueId, long matchId) {
@@ -63,15 +120,30 @@ public class MatchService {
         return matchDetailEntity.getResult();
     }
 
+    public String getMatchHistoryByAllHero(String steamId) {
+        StringBuilder sb = new StringBuilder();
+        List<Hero> heroList = heroService.listAll();
+        List<Integer> heroIdList = heroList.stream().map(Hero::getId).collect(Collectors.toList());
+        heroIdList.forEach(heroId -> {
+            GetMatchHistoryReq getMatchHistoryReq = new GetMatchHistoryReq();
+            getMatchHistoryReq.setAccountId(steamId);
+            getMatchHistoryReq.setHeroId(Long.valueOf(heroId));
+            String result = getMatchHistory(getMatchHistoryReq);
+            JsonNode resultNode = JsonMapper.nonDefaultMapper().fromJson(result, JsonNode.class);
+            for (JsonNode node : resultNode.findPath("matches")) {
+                sb.append(node.findValuesAsText("match_id")).append(",");
+            }
+        });
+        return sb.toString();
+    }
+
     public BanPickDetails getBanPick(int leagueId, long matchId) {
         BanPickDetails banPickDetails = new BanPickDetails();
         List<Match> matches = getLeagueAfter(leagueId, matchId);
         List<Long> matchIds = new ArrayList<>();
-        matches.forEach(match -> {
-            matchIds.add(match.getMatch_id());
-        });
-        matchIds.forEach(match_Id -> {
-            MatchDetail matchDetail = getMatchDetail(match_Id);
+        matches.forEach(match -> matchIds.add(match.getMatch_id()));
+        matchIds.forEach(matchId1 -> {
+            MatchDetail matchDetail = getMatchDetail(matchId1);
             List<BanPicks> banPickList = matchDetail.getPicks_bans();
             String isRadiantWin = matchDetail.getRadiant_win();
             if (StringUtils.equals(isRadiantWin, "true")) {
@@ -85,12 +157,12 @@ public class MatchService {
         return banPickDetails;
     }
 
-    private void banPickWin(BanPickDetails banPickDetails, List<BanPicks> banPickList, int win_team_id) {
+    private void banPickWin(BanPickDetails banPickDetails, List<BanPicks> banPickList, int winTeamId) {
         banPickList.forEach(banPick -> {
             String isPick = banPick.getIs_pick();
             if (StringUtils.equals(isPick, "true")) {
                 banPickDetails.pickHero(banPick.getHero_id());
-                if (banPick.getTeam() == win_team_id) {
+                if (banPick.getTeam() == winTeamId) {
                     banPickDetails.addWinCount(banPick.getHero_id());
                 } else {
                     banPickDetails.addLoseCount(banPick.getHero_id());
