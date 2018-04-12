@@ -32,7 +32,7 @@ public class HeroService {
         return heroDao.findAll();
     }
 
-    public Hero listById(int id) {
+    public Hero findById(int id) {
         return heroDao.findOne(id);
     }
 
