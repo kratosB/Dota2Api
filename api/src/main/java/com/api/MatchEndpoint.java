@@ -28,13 +28,13 @@ public class MatchEndpoint {
     @Autowired
     private HeroService heroService;
 
-    @ApiOperation("列取赛事信息")
+    @ApiOperation("列取所有赛事信息")
     @RequestMapping(value = "/api/match/listLeague", method = RequestMethod.GET)
     public LeaguesEntity listLeague() {
         return matchService.listLeague();
     }
 
-    @ApiOperation("列取赛事信息")
+    @ApiOperation("获取某一项赛事的信息")
     @RequestMapping(value = "/api/match/getLeague", method = RequestMethod.GET)
     public MatchesEntity getLeague(@ApiParam(name = "id", required = true) @RequestParam(name = "id") int id) {
         return matchService.getLeague(id);
@@ -46,7 +46,7 @@ public class MatchEndpoint {
         return matchService.getMatchHistory(getMatchHistoryReq);
     }
 
-    @ApiOperation("列取赛事信息_正赛（从某场比赛开始）")
+    @ApiOperation("列取某一项赛事赛事信息_正赛（从某场比赛开始）")
     @RequestMapping(value = "/api/match/getLeagueAfter", method = RequestMethod.GET)
     public List<Match> getLeagueAfter(@ApiParam(name = "leagueId", required = true) @RequestParam(name = "leagueId") int leagueId,
                                       @ApiParam(name = "matchId", required = true) @RequestParam(name = "matchId") long matchId) {
