@@ -23,4 +23,7 @@ public class Configuration {
     @Value("${steam.api.language}")
     private String apiLanguage;
 
+    @Value("${admin.steamId}")
+    private String adminSteamId;
+
 }
