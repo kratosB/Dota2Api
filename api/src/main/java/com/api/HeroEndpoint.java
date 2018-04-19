@@ -37,7 +37,7 @@ public class HeroEndpoint {
         return heroService.findById(id);
     }
 
-    @ApiOperation("更新hero数据")
+    @ApiOperation("从steam更新hero数据")
     @PostMapping(value = "/api/hero/updateHeroData")
     public void updateHeroData() {
         heroService.updateHeroData();

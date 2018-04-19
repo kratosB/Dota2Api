@@ -28,9 +28,6 @@ public class PlayerService {
 
     private String str2 = "&";
 
-    // STEAMID64 - 76561197960265728 = STEAMID32
-    // STEAMID32 + 76561197960265728 = STEAMID64
-
     @Autowired
     public PlayerService(PlayerDao playerDao) {
         this.playerDao = playerDao;
@@ -50,9 +47,7 @@ public class PlayerService {
         JsonNode jsonNodes = JsonMapper.nonDefaultMapper().fromJson(response, JsonNode.class);
         JsonNode friendNodes = jsonNodes.findPath("friends");
         StringBuilder steamIdsBuilder = new StringBuilder();
-        friendNodes.forEach(friendNode -> {
-            steamIdsBuilder.append(friendNode.findValue("steamid").asText()).append(",");
-        });
+        friendNodes.forEach(friendNode -> steamIdsBuilder.append(friendNode.findValue("steamid").asText()).append(","));
         updatePlayerData(steamIdsBuilder.substring(0, steamIdsBuilder.length() - 1));
     }
 
@@ -72,8 +67,7 @@ public class PlayerService {
             player.setSteamid(playerNode.findValue("steamid").asText());
             player.setCommunityvisibilitystate(playerNode.findValue("communityvisibilitystate").asInt());
             System.out.println(playerNode.findValue("steamid").asText());
-            player.setProfilestate(
-                    playerNode.findValue("profilestate") != null ? playerNode.findValue("profilestate").asInt() : null);
+            player.setProfilestate(playerNode.findValue("profilestate") != null ? playerNode.findValue("profilestate").asInt() : 0);
             player.setPersonaname(playerNode.findValue("personaname").asText());
             player.setLastlogoff(playerNode.findValue("lastlogoff").asLong());
             player.setProfileurl(playerNode.findValue("profileurl").asText());
@@ -83,10 +77,9 @@ public class PlayerService {
             player.setPersonastate(playerNode.findValue("personastate").asInt());
             player.setPrimaryclanid(
                     playerNode.findValue("primaryclanid") != null ? playerNode.findValue("primaryclanid").asText() : null);
-            player.setTimecreated(
-                    playerNode.findValue("timecreated") != null ? playerNode.findValue("timecreated").asLong() : null);
+            player.setTimecreated(playerNode.findValue("timecreated") != null ? playerNode.findValue("timecreated").asLong() : 0L);
             player.setPersonastateflags(
-                    playerNode.findValue("personastateflags") != null ? playerNode.findValue("personastateflags").asInt() : null);
+                    playerNode.findValue("personastateflags") != null ? playerNode.findValue("personastateflags").asInt() : 0);
             player.setLoccountrycode(
                     playerNode.findValue("loccountrycode") != null ? playerNode.findValue("loccountrycode").asText() : null);
             playerList.add(player);

@@ -16,8 +16,12 @@ import java.util.List;
 @RestController
 public class ItemEndpoint {
 
-    @Autowired
     private ItemService itemService;
+
+    @Autowired
+    public ItemEndpoint(ItemService itemService) {
+        this.itemService = itemService;
+    }
 
     @ApiOperation("获取所有item")
     @RequestMapping(value = "/api/item/listAll", method = RequestMethod.GET)
@@ -32,7 +36,7 @@ public class ItemEndpoint {
         return itemService.findById(id);
     }
 
-    @ApiOperation("更新item数据")
+    @ApiOperation("从steam更新item数据")
     @PostMapping(value = "/api/item/updateItemData")
     public void updateItemData() {
         itemService.updateItemData();

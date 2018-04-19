@@ -1,9 +1,8 @@
 package com.api;
 
 import com.api.req.GetMatchHistoryReq;
-import com.bean.heroitem.Bean;
-import com.bean.heroitem.HeroesEntity;
 import com.bean.match.*;
+import com.config.Configuration;
 import com.dao.entity.Hero;
 import com.service.HeroService;
 import com.service.MatchService;
@@ -22,11 +21,18 @@ import java.util.List;
 @RestController
 public class MatchEndpoint {
 
-    @Autowired
     private MatchService matchService;
 
-    @Autowired
+    private Configuration configuration;
+
     private HeroService heroService;
+
+    @Autowired
+    public MatchEndpoint(Configuration configuration, MatchService matchService, HeroService heroService) {
+        this.configuration = configuration;
+        this.matchService = matchService;
+        this.heroService = heroService;
+    }
 
     @ApiOperation("列取所有赛事信息")
     @RequestMapping(value = "/api/match/listLeague", method = RequestMethod.GET)
@@ -46,10 +52,12 @@ public class MatchEndpoint {
         return matchService.getMatchHistory(getMatchHistoryReq);
     }
 
+    // http://api.steampowered.com/IDOTA2Match_570/GetMatchHistory/v1/?key=EFA1E81676FCC47157EA871A67741EF5&account_id=76561198088256001&hero_id=71&start_at_match_id=1848644028
+
     @ApiOperation("列取某一项赛事赛事信息_正赛（从某场比赛开始）")
     @RequestMapping(value = "/api/match/getLeagueAfter", method = RequestMethod.GET)
     public List<Match> getLeagueAfter(@ApiParam(name = "leagueId", required = true) @RequestParam(name = "leagueId") int leagueId,
-                                      @ApiParam(name = "matchId", required = true) @RequestParam(name = "matchId") long matchId) {
+            @ApiParam(name = "matchId", required = true) @RequestParam(name = "matchId") long matchId) {
         return matchService.getLeagueAfter(leagueId, matchId);
     }
 
@@ -74,9 +82,9 @@ public class MatchEndpoint {
     @ApiOperation("根据英雄id获取所有比赛的比赛id")
     @RequestMapping(value = "/api/match/getMatchHistoryByAllHero", method = RequestMethod.GET)
     public String getMatchHistoryByAllHero(
-            @ApiParam(name = "steamId", required = false) @RequestParam(name = "steamId", required = false) String steamId) {
+            @ApiParam(name = "steamId") @RequestParam(name = "steamId", required = false) String steamId) {
         if (steamId == null) {
-            steamId = "76561198088256001";
+            steamId = configuration.getAdminSteamId();
         }
         return matchService.getMatchHistoryByAllHero(steamId);
     }
