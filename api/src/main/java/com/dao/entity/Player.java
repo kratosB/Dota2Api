@@ -20,6 +20,8 @@ public class Player {
     @Id
     private String steamid;
 
+    private String dotaAccountId;
+
     private int communityvisibilitystate;
 
     private int profilestate;

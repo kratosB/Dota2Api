@@ -3,6 +3,10 @@ package com.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.config.Configuration;
+import com.dao.RelationDao;
+import com.dao.entity.Relation;
+import com.util.SteamIdConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -22,15 +26,17 @@ public class PlayerService {
 
     private PlayerDao playerDao;
 
+    private RelationDao relationDao;
+
+    private Configuration configuration;
+
     private String steamUrl = "http://api.steampowered.com/ISteamUser/";
 
-    private String key = "?key=EFA1E81676FCC47157EA871A67741EF5";
-
-    private String str2 = "&";
-
     @Autowired
-    public PlayerService(PlayerDao playerDao) {
+    public PlayerService(PlayerDao playerDao, Configuration configuration, RelationDao relationDao) {
         this.playerDao = playerDao;
+        this.configuration = configuration;
+        this.relationDao = relationDao;
     }
 
     public void updatePlayerDataBySteamId(String steamId) {
@@ -39,9 +45,9 @@ public class PlayerService {
 
     public void updateFriendDataBySteamId(String steamId) {
         String getFriendList = "GetFriendList/";
-        String version = "v1/";
         String steamIdKey = "steamid=";
-        String getFriendListUrl = steamUrl + getFriendList + version + key + str2 + steamIdKey + steamId;
+        String getFriendListUrl = steamUrl + getFriendList + configuration.getApiVersion() + configuration.getApiKey()
+                + configuration.getApiAnd() + steamIdKey + steamId;
         RestTemplate restTemplate = new RestTemplate();
         String response = restTemplate.getForObject(getFriendListUrl, String.class);
         JsonNode jsonNodes = JsonMapper.nonDefaultMapper().fromJson(response, JsonNode.class);
@@ -51,12 +57,19 @@ public class PlayerService {
         updatePlayerData(steamIdsBuilder.substring(0, steamIdsBuilder.length() - 1));
     }
 
+    public void updateRelation(String steamId, List<String> friendIdList) {
+        List<Relation> relationList = relationDao.findBySteamIdAndAndFriendIdIn(steamId,friendIdList);
+        friendIdList.removeAll(relationList);
+        //TODO
+    }
+
     private void updatePlayerData(String steamIds) {
         // 获取steam的hero数据
         String getPlayerSummaries = "GetPlayerSummaries/";
         String version = "v0002/";
         String steamIdsKey = "steamids=";
-        String getPlayerSummariesUrl = steamUrl + getPlayerSummaries + version + key + str2 + steamIdsKey + steamIds;
+        String getPlayerSummariesUrl = steamUrl + getPlayerSummaries + version + configuration.getApiKey()
+                + configuration.getApiAnd() + steamIdsKey + steamIds;
         RestTemplate restTemplate = new RestTemplate();
         String response = restTemplate.getForObject(getPlayerSummariesUrl, String.class);
         JsonNode jsonNodes = JsonMapper.nonDefaultMapper().fromJson(response, JsonNode.class);
@@ -65,8 +78,8 @@ public class PlayerService {
         playerNodes.forEach(playerNode -> {
             Player player = new Player();
             player.setSteamid(playerNode.findValue("steamid").asText());
+            player.setDotaAccountId(SteamIdConverter.defaultInstance().convert(playerNode.findValue("steamid").asText()));
             player.setCommunityvisibilitystate(playerNode.findValue("communityvisibilitystate").asInt());
-            System.out.println(playerNode.findValue("steamid").asText());
             player.setProfilestate(playerNode.findValue("profilestate") != null ? playerNode.findValue("profilestate").asInt() : 0);
             player.setPersonaname(playerNode.findValue("personaname").asText());
             player.setLastlogoff(playerNode.findValue("lastlogoff").asLong());

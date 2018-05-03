@@ -19,4 +19,8 @@ public class SteamIdConverter {
         }
     }
 
+    public static SteamIdConverter defaultInstance() {
+        return new SteamIdConverter();
+    }
+
 }
