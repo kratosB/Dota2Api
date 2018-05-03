@@ -11,7 +11,7 @@ public class Configuration {
     @Value("${steam.api.url.dota2}")
     private String dota2Url;
 
-    @Value("${steam.api.version}")
+    @Value("${steam.api.version.v1}")
     private String apiVersion;
 
     @Value("${steam.api.key}")
@@ -20,7 +20,7 @@ public class Configuration {
     @Value("${steam.api.and}")
     private String apiAnd;
 
-    @Value("${steam.api.language}")
+    @Value("${steam.api.language.zh}")
     private String apiLanguage;
 
     @Value("${admin.steamId}")

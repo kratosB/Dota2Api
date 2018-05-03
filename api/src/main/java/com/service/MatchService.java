@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.config.Configuration;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,25 +31,21 @@ import com.util.JsonMapper;
 @Service
 public class MatchService {
 
-    private String steamUrl = "http://api.steampowered.com/IDOTA2Match_570/";
-
-    private String version = "v1/";
-
-    private String key = "?key=EFA1E81676FCC47157EA871A67741EF5";
-
-    private String str2 = "&";
-
     private HeroService heroService;
 
+    private Configuration configuration;
+
     @Autowired
-    public MatchService(HeroService heroService) {
+    public MatchService(HeroService heroService, Configuration configuration) {
         this.heroService = heroService;
+        this.configuration = configuration;
     }
 
     public LeaguesEntity listLeague() {
         String getLeague = "GetLeagueListing/";
         String language = "language=zh";
-        String getHeroUrl = steamUrl + getLeague + version + key + str2 + language;
+        String getHeroUrl = configuration.getDota2Url() + getLeague + configuration.getApiVersion() + configuration.getApiKey()
+                + configuration.getApiAnd() + language;
         RestTemplate restTemplate = new RestTemplate();
         String response = restTemplate.getForObject(getHeroUrl, String.class);
         return JsonMapper.nonDefaultMapper().fromJson(response, LeaguesEntity.class);
@@ -57,7 +54,8 @@ public class MatchService {
     public MatchesEntity getLeague(int leagueId) {
         String getMatchHistory = "GetMatchHistory/";
         String leagueIdStr = "league_id=" + leagueId;
-        String getHeroUrl = steamUrl + getMatchHistory + version + key + str2 + leagueIdStr;
+        String getHeroUrl = configuration.getDota2Url() + getMatchHistory + configuration.getApiVersion()
+                + configuration.getApiKey() + configuration.getApiAnd() + leagueIdStr;
         RestTemplate restTemplate = new RestTemplate();
         String response = restTemplate.getForObject(getHeroUrl, String.class);
         return JsonMapper.nonDefaultMapper().fromJson(response, MatchesEntity.class);
@@ -66,36 +64,37 @@ public class MatchService {
     public String getMatchHistory(GetMatchHistoryReq getMatchHistoryReq) {
         String getMatchHistory = "GetMatchHistory/";
         StringBuilder sb = new StringBuilder();
-        sb.append(steamUrl).append(getMatchHistory).append(version).append(key);
+        sb.append(configuration.getDota2Url()).append(getMatchHistory).append(configuration.getApiVersion())
+                .append(configuration.getApiKey());
         if (getMatchHistoryReq.getAccountId() != null) {
-            sb.append(str2).append("account_id=").append(getMatchHistoryReq.getAccountId());
+            sb.append(configuration.getApiAnd()).append("account_id=").append(getMatchHistoryReq.getAccountId());
         }
         if (getMatchHistoryReq.getGameMode() != null) {
-            sb.append(str2).append("game_mode=").append(getMatchHistoryReq.getGameMode());
+            sb.append(configuration.getApiAnd()).append("game_mode=").append(getMatchHistoryReq.getGameMode());
         }
         if (getMatchHistoryReq.getHeroId() != null) {
-            sb.append(str2).append("hero_id=").append(getMatchHistoryReq.getHeroId());
+            sb.append(configuration.getApiAnd()).append("hero_id=").append(getMatchHistoryReq.getHeroId());
         }
         if (getMatchHistoryReq.getLeagueId() != null) {
-            sb.append(str2).append("league_id=").append(getMatchHistoryReq.getLeagueId());
+            sb.append(configuration.getApiAnd()).append("league_id=").append(getMatchHistoryReq.getLeagueId());
         }
         if (getMatchHistoryReq.getMatchesRequested() != null) {
-            sb.append(str2).append("matches_requested=").append(getMatchHistoryReq.getMatchesRequested());
+            sb.append(configuration.getApiAnd()).append("matches_requested=").append(getMatchHistoryReq.getMatchesRequested());
         }
         if (getMatchHistoryReq.getMinPlayers() != null) {
-            sb.append(str2).append("min_players=").append(getMatchHistoryReq.getMinPlayers());
+            sb.append(configuration.getApiAnd()).append("min_players=").append(getMatchHistoryReq.getMinPlayers());
         }
         if (getMatchHistoryReq.getSkill() != null) {
-            sb.append(str2).append("skill=").append(getMatchHistoryReq.getSkill());
+            sb.append(configuration.getApiAnd()).append("skill=").append(getMatchHistoryReq.getSkill());
         }
         if (getMatchHistoryReq.getStartAtMatchId() != null) {
-            sb.append(str2).append("start_at_match_id=").append(getMatchHistoryReq.getStartAtMatchId());
+            sb.append(configuration.getApiAnd()).append("start_at_match_id=").append(getMatchHistoryReq.getStartAtMatchId());
         }
         if (getMatchHistoryReq.getDateMax() != null) {
-            sb.append(str2).append("date_max=").append(getMatchHistoryReq.getDateMax());
+            sb.append(configuration.getApiAnd()).append("date_max=").append(getMatchHistoryReq.getDateMax());
         }
         if (getMatchHistoryReq.getDateMin() != null) {
-            sb.append(str2).append("date_min=").append(getMatchHistoryReq.getDateMin());
+            sb.append(configuration.getApiAnd()).append("date_min=").append(getMatchHistoryReq.getDateMin());
         }
         RestTemplate restTemplate = new RestTemplate();
         return restTemplate.getForObject(sb.toString(), String.class);
@@ -113,7 +112,8 @@ public class MatchService {
     public MatchDetail getMatchDetail(long matchId) {
         String getMatchDetails = "GetMatchDetails/";
         String matchIdStr = "match_id=" + matchId;
-        String getHeroUrl = steamUrl + getMatchDetails + version + key + str2 + matchIdStr;
+        String getHeroUrl = configuration.getDota2Url() + getMatchDetails + configuration.getApiVersion()
+                + configuration.getApiKey() + configuration.getApiAnd() + matchIdStr;
         RestTemplate restTemplate = new RestTemplate();
         String response = restTemplate.getForObject(getHeroUrl, String.class);
         MatchDetailEntity matchDetailEntity = JsonMapper.nonDefaultMapper().fromJson(response, MatchDetailEntity.class);

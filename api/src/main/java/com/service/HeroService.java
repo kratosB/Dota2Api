@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.config.Configuration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -23,9 +24,12 @@ public class HeroService {
 
     private HeroDao heroDao;
 
+    private Configuration configuration;
+
     @Autowired
-    public HeroService(HeroDao heroDao) {
+    public HeroService(HeroDao heroDao, Configuration configuration) {
         this.heroDao = heroDao;
+        this.configuration = configuration;
     }
 
     public List<Hero> listAll() {
@@ -39,12 +43,8 @@ public class HeroService {
     public void updateHeroData() {
         // 获取steam的hero数据
         String getHero = "GetHeroes/";
-        String steamUrl = "http://api.steampowered.com/IEconDOTA2_570/";
-        String version = "v1/";
-        String key = "?key=EFA1E81676FCC47157EA871A67741EF5";
-        String str2 = "&";
-        String language = "language=zh";
-        String getHeroUrl = steamUrl + getHero + version + key + str2 + language;
+        String getHeroUrl = configuration.getDota2Url() + getHero + configuration.getApiVersion() + configuration.getApiKey()
+                + configuration.getApiAnd() + configuration.getApiLanguage();
         RestTemplate restTemplate = new RestTemplate();
         String response = restTemplate.getForObject(getHeroUrl, String.class);
         JsonNode jsonNodes = JsonMapper.nonDefaultMapper().fromJson(response, JsonNode.class);
