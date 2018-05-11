@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.config.Configuration;
+import com.dao.MatchDao;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -35,10 +36,13 @@ public class MatchService {
 
     private Configuration configuration;
 
+    private MatchDao matchDao;
+
     @Autowired
-    public MatchService(HeroService heroService, Configuration configuration) {
+    public MatchService(HeroService heroService, Configuration configuration, MatchDao matchDao) {
         this.heroService = heroService;
         this.configuration = configuration;
+        this.matchDao = matchDao;
     }
 
     public LeaguesEntity listLeague() {
@@ -173,4 +177,48 @@ public class MatchService {
         });
     }
 
+    public void updateMatchDetail(Long matchId) {
+        String getMatchDetails = "GetMatchDetails/";
+        String matchIdStr = "match_id=" + matchId;
+        String getHeroUrl = configuration.getDota2Url() + getMatchDetails + configuration.getApiVersion()
+                + configuration.getApiKey() + configuration.getApiAnd() + matchIdStr;
+        RestTemplate restTemplate = new RestTemplate();
+        String response = restTemplate.getForObject(getHeroUrl, String.class);
+        JsonNode jsonNode = JsonMapper.nonDefaultMapper().fromJson(response, JsonNode.class);
+        com.dao.entity.Match match = new com.dao.entity.Match();
+        match.setMatchId(jsonNode.findValue("match_id").asLong());
+        match.setRadiantWin(StringUtils.equals(jsonNode.findValue("radiant_win").asText(), "true") ? 1 : 0);
+        match.setDuration(jsonNode.findValue("duration").asInt());
+        match.setPreGameDuration(jsonNode.findValue("pre_game_duration").asInt());
+        match.setStartTime(jsonNode.findValue("start_time").asLong());
+        match.setMatchSeqNum(jsonNode.findValue("match_seq_num").asLong());
+        match.setTowerStatusRadiant(jsonNode.findValue("tower_status_radiant").asInt());
+        match.setTowerStatusDire(jsonNode.findValue("tower_status_dire").asInt());
+        match.setBarracksStatusRadiant(jsonNode.findValue("barracks_status_radiant").asInt());
+        match.setBarracksStatusDire(jsonNode.findValue("barracks_status_dire").asInt());
+        match.setCluster(jsonNode.findValue("cluster").asInt());
+        match.setFirstBloodTime(jsonNode.findValue("first_blood_time").asInt());
+        match.setLobbyType(jsonNode.findValue("lobby_type").asInt());
+        match.setHumanPlayers(jsonNode.findValue("human_players").asInt());
+        match.setLeagueId(jsonNode.findValue("leagueid").asInt());
+        match.setPositiveVotes(jsonNode.findValue("positive_votes").asInt());
+        match.setNegativeVotes(jsonNode.findValue("negative_votes").asInt());
+        match.setGameMode(jsonNode.findValue("game_mode").asInt());
+        match.setFlags(jsonNode.findValue("flags").asInt());
+        match.setEngine(jsonNode.findValue("engine").asInt());
+        match.setRadiantScore(jsonNode.findValue("radiant_score").asInt());
+        match.setDireScore(jsonNode.findValue("dire_score").asInt());
+        match.setRadiantTeamId(jsonNode.findValue("radiant_team_id").asInt());
+        match.setRadiantName(jsonNode.findValue("radiant_name").asText());
+        match.setRadiantLogo(jsonNode.findValue("radiant_logo").asLong());
+        match.setRadiantTeamComplete(jsonNode.findValue("radiant_team_complete").asInt());
+        match.setRadiantCaptain(jsonNode.findValue("radiant_captain").asLong());
+        match.setDireTeamId(jsonNode.findValue("dire_team_id").asInt());
+        match.setDireName(jsonNode.findValue("dire_name").asText());
+        match.setDireLogo(jsonNode.findValue("dire_logo").asLong());
+        match.setDireTeamComplete(jsonNode.findValue("dire_team_complete").asInt());
+        match.setDireCaptain(jsonNode.findValue("dire_captain").asLong());
+        match.setPicksBans(jsonNode.findValue("picks_bans").asText());
+        matchDao.save(match);
+    }
 }

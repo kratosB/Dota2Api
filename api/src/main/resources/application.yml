@@ -10,7 +10,9 @@ spring:
 steam:
   api:
     url:
-      dota2: http://api.steampowered.com/IEconDOTA2_570/
+      dota2:
+        IEcon: http://api.steampowered.com/IEconDOTA2_570/
+        IDOTA2: http://api.steampowered.com/IDOTA2Match_570/
     version:
       v1: v1/
     key: ?key=EFA1E81676FCC47157EA871A67741EF5
