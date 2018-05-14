@@ -30,8 +30,6 @@ public class PlayerService {
 
     private Configuration configuration;
 
-    private String steamUrl = "http://api.steampowered.com/ISteamUser/";
-
     @Autowired
     public PlayerService(PlayerDao playerDao, Configuration configuration, RelationDao relationDao) {
         this.playerDao = playerDao;
@@ -46,8 +44,8 @@ public class PlayerService {
     public void updateFriendDataBySteamId(String steamId) {
         String getFriendList = "GetFriendList/";
         String steamIdKey = "steamid=";
-        String getFriendListUrl = steamUrl + getFriendList + configuration.getApiVersion() + configuration.getApiKey()
-                + configuration.getApiAnd() + steamIdKey + steamId;
+        String getFriendListUrl = configuration.getSteamUserUrl() + getFriendList + configuration.getApiVersion()
+                + configuration.getApiKey() + configuration.getApiAnd() + steamIdKey + steamId;
         RestTemplate restTemplate = new RestTemplate();
         String response = restTemplate.getForObject(getFriendListUrl, String.class);
         JsonNode jsonNodes = JsonMapper.nonDefaultMapper().fromJson(response, JsonNode.class);
@@ -58,9 +56,9 @@ public class PlayerService {
     }
 
     public void updateRelation(String steamId, List<String> friendIdList) {
-        List<Relation> relationList = relationDao.findBySteamIdAndAndFriendIdIn(steamId,friendIdList);
+        List<Relation> relationList = relationDao.findBySteamIdAndAndFriendIdIn(steamId, friendIdList);
         friendIdList.removeAll(relationList);
-        //TODO
+        // TODO
     }
 
     private void updatePlayerData(String steamIds) {
@@ -68,7 +66,7 @@ public class PlayerService {
         String getPlayerSummaries = "GetPlayerSummaries/";
         String version = "v0002/";
         String steamIdsKey = "steamids=";
-        String getPlayerSummariesUrl = steamUrl + getPlayerSummaries + version + configuration.getApiKey()
+        String getPlayerSummariesUrl = configuration.getSteamUserUrl() + getPlayerSummaries + version + configuration.getApiKey()
                 + configuration.getApiAnd() + steamIdsKey + steamIds;
         RestTemplate restTemplate = new RestTemplate();
         String response = restTemplate.getForObject(getPlayerSummariesUrl, String.class);

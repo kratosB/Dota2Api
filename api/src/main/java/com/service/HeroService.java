@@ -43,7 +43,7 @@ public class HeroService {
     public void updateHeroData() {
         // 获取steam的hero数据
         String getHero = "GetHeroes/";
-        String getHeroUrl = configuration.getDota2Url() + getHero + configuration.getApiVersion() + configuration.getApiKey()
+        String getHeroUrl = configuration.getIEconUrl() + getHero + configuration.getApiVersion() + configuration.getApiKey()
                 + configuration.getApiAnd() + configuration.getApiLanguage();
         RestTemplate restTemplate = new RestTemplate();
         String response = restTemplate.getForObject(getHeroUrl, String.class);

@@ -41,7 +41,7 @@ public class ItemService {
 
     public void updateItemData() {
         String getItem = "GetGameItems/";
-        String getHeroUrl = configuration.getDota2Url() + getItem + configuration.getApiVersion() + configuration.getApiKey()
+        String getHeroUrl = configuration.getIEconUrl() + getItem + configuration.getApiVersion() + configuration.getApiKey()
                 + configuration.getApiAnd() + configuration.getApiLanguage();
         RestTemplate restTemplate = new RestTemplate();
         String response = restTemplate.getForObject(getHeroUrl, String.class);

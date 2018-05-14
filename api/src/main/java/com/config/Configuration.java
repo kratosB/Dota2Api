@@ -8,8 +8,14 @@ import org.springframework.stereotype.Component;
 @Component
 public class Configuration {
 
-    @Value("${steam.api.url.dota2}")
-    private String dota2Url;
+    @Value("${steam.api.url.dota2.IEcon}")
+    private String iEconUrl;
+
+    @Value("${steam.api.url.dota2.IDOTA2}")
+    private String iDota2Url;
+
+    @Value("${steam.api.url.steam.user}")
+    private String steamUserUrl;
 
     @Value("${steam.api.version.v1}")
     private String apiVersion;

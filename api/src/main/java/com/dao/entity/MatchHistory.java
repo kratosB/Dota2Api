@@ -13,8 +13,8 @@ import javax.persistence.Table;
  */
 @Data
 @Entity
-@Table(name = "Match")
-public class Match {
+@Table(name = "match_history")
+public class MatchHistory {
 
     @Id
     private Long matchId;
