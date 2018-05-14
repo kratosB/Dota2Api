@@ -7,7 +7,9 @@ import java.util.stream.Collectors;
 
 import com.config.Configuration;
 import com.dao.MatchHistoryDao;
+import com.dao.MatchPlayerDao;
 import com.dao.entity.MatchHistory;
+import com.dao.entity.MatchPlayer;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -40,11 +42,15 @@ public class MatchService {
 
     private MatchHistoryDao matchHistoryDao;
 
+    private MatchPlayerDao matchPlayerDao;
+
     @Autowired
-    public MatchService(HeroService heroService, Configuration configuration, MatchHistoryDao matchHistoryDao) {
+    public MatchService(HeroService heroService, Configuration configuration, MatchHistoryDao matchHistoryDao,
+            MatchPlayerDao matchPlayerDao) {
         this.heroService = heroService;
         this.configuration = configuration;
         this.matchHistoryDao = matchHistoryDao;
+        this.matchPlayerDao = matchPlayerDao;
     }
 
     public LeaguesEntity listLeague() {
@@ -191,9 +197,13 @@ public class MatchService {
         matchHistoryDao.save(matchHistory);
         JsonNode playersNode = jsonNode.findPath("players");
         Iterator<JsonNode> playerNodeList = playersNode.iterator();
-        playerNodeList.forEachRemaining(node->{
-            System.out.println(JsonMapper.nonDefaultMapper().toJson(node));
+        List<MatchPlayer> matchPlayerList = new ArrayList<>();
+        playerNodeList.forEachRemaining(node -> {
+            MatchPlayer matchPlayer = convertMatchPlayerNodeToMatchPlayer(node);
+            matchPlayer.setMatchId(matchId);
+            matchPlayerList.add(matchPlayer);
         });
+        matchPlayerDao.save(matchPlayerList);
     }
 
     private MatchHistory convertMatchNodeToMatchHistory(JsonNode matchNode) {
@@ -233,4 +243,40 @@ public class MatchService {
         matchHistory.setPicksBans(JsonMapper.nonDefaultMapper().toJson(matchNode.findValue("picks_bans")));
         return matchHistory;
     }
+
+    private MatchPlayer convertMatchPlayerNodeToMatchPlayer(JsonNode matchPlayerNode) {
+        MatchPlayer matchPlayer = new MatchPlayer();
+        matchPlayer.setAccountId(matchPlayerNode.findValue("account_id").asLong());
+        matchPlayer.setPlayerSlot(matchPlayerNode.findValue("player_slot").asInt());
+        matchPlayer.setHeroId(matchPlayerNode.findValue("hero_id").asInt());
+        matchPlayer.setItem0(matchPlayerNode.findValue("item_0").asInt());
+        matchPlayer.setItem1(matchPlayerNode.findValue("item_1").asInt());
+        matchPlayer.setItem2(matchPlayerNode.findValue("item_2").asInt());
+        matchPlayer.setItem3(matchPlayerNode.findValue("item_3").asInt());
+        matchPlayer.setItem4(matchPlayerNode.findValue("item_4").asInt());
+        matchPlayer.setItem5(matchPlayerNode.findValue("item_5").asInt());
+        matchPlayer.setBackpack0(matchPlayerNode.findValue("backpack_0").asInt());
+        matchPlayer.setBackpack1(matchPlayerNode.findValue("backpack_1").asInt());
+        matchPlayer.setBackpack2(matchPlayerNode.findValue("backpack_2").asInt());
+        matchPlayer.setKills(matchPlayerNode.findValue("kills").asInt());
+        matchPlayer.setDeaths(matchPlayerNode.findValue("deaths").asInt());
+        matchPlayer.setAssists(matchPlayerNode.findValue("assists").asInt());
+        matchPlayer.setLeaverStatus(matchPlayerNode.findValue("leaver_status").asInt());
+        matchPlayer.setLastHits(matchPlayerNode.findValue("last_hits").asInt());
+        matchPlayer.setDenies(matchPlayerNode.findValue("denies").asInt());
+        matchPlayer.setGoldPerMin(matchPlayerNode.findValue("gold_per_min").asInt());
+        matchPlayer.setXpPerMin(matchPlayerNode.findValue("xp_per_min").asInt());
+        matchPlayer.setLevel(matchPlayerNode.findValue("level").asInt());
+        matchPlayer.setHeroDamage(matchPlayerNode.findValue("hero_damage").asInt());
+        matchPlayer.setTowerDamage(matchPlayerNode.findValue("tower_damage").asInt());
+        matchPlayer.setHeroHealing(matchPlayerNode.findValue("hero_healing").asInt());
+        matchPlayer.setGold(matchPlayerNode.findValue("gold").asInt());
+        matchPlayer.setGoldSpent(matchPlayerNode.findValue("gold_spent").asInt());
+        matchPlayer.setScaledHeroDamage(matchPlayerNode.findValue("scaled_hero_damage").asInt());
+        matchPlayer.setScaledTowerDamage(matchPlayerNode.findValue("scaled_tower_damage").asInt());
+        matchPlayer.setScaledHeroHealing(matchPlayerNode.findValue("scaled_hero_healing").asInt());
+        matchPlayer.setAbilityUpgrades(JsonMapper.nonDefaultMapper().toJson(matchPlayerNode.findValue("ability_upgrades")));
+        return matchPlayer;
+    }
+
 }
