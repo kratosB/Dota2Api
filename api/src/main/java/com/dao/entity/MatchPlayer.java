@@ -19,31 +19,31 @@ public class MatchPlayer {
     @Id
     private Long id;
 
-    private Long match_id;
+    private Long matchId;
 
-    private Integer account_id;
+    private Long accountId;
 
-    private Integer player_slot;
+    private Integer playerSlot;
 
-    private Integer hero_id;
+    private Integer heroId;
 
-    private Integer item_0;
+    private Integer item0;
 
-    private Integer item_1;
+    private Integer item1;
 
-    private Integer item_2;
+    private Integer item2;
 
-    private Integer item_3;
+    private Integer item3;
 
-    private Integer item_4;
+    private Integer item4;
 
-    private Integer item_5;
+    private Integer item5;
 
-    private Integer backpack_0;
+    private Integer backpack0;
 
-    private Integer backpack_1;
+    private Integer backpack1;
 
-    private Integer backpack_2;
+    private Integer backpack2;
 
     private Integer kills;
 
@@ -51,34 +51,34 @@ public class MatchPlayer {
 
     private Integer assists;
 
-    private Integer leaver_status;
+    private Integer leaverStatus;
 
-    private Integer last_hits;
+    private Integer lastHits;
 
     private Integer denies;
 
-    private Integer gold_per_min;
+    private Integer goldPerMin;
 
-    private Integer xp_per_min;
+    private Integer xpPerMin;
 
     private Integer level;
 
-    private Integer hero_damage;
+    private Integer heroDamage;
 
-    private Integer tower_damage;
+    private Integer towerDamage;
 
-    private Integer hero_healing;
+    private Integer heroHealing;
 
     private Integer gold;
 
-    private Integer gold_spent;
+    private Integer goldSpent;
 
-    private Integer scaled_hero_damage;
+    private Integer scaledHeroDamage;
 
-    private Integer scaled_tower_damage;
+    private Integer scaledTowerDamage;
 
-    private Integer scaled_hero_healing;
+    private Integer scaledHeroHealing;
 
-    private String ability_upgrades;
+    private String abilityUpgrades;
 
 }
