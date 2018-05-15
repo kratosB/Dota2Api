@@ -1,10 +1,6 @@
 package com.service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import com.config.Configuration;
@@ -187,6 +183,10 @@ public class MatchService {
         });
     }
 
+    public void updateMatchDetail(String steamId, int heroId) {
+        List<Long> matchId = getMatchIdBySteamIdAndHeroId(steamId, heroId, null);
+    }
+
     public List<Long> getMatchIdBySteamIdAndHeroId(String steamId, int heroId, Long startAtMatchId) {
         List<Long> matchIdList = new ArrayList<>();
         GetMatchHistoryReq getMatchHistoryReq = new GetMatchHistoryReq();
@@ -200,15 +200,18 @@ public class MatchService {
         }
         int remainingCount = resultNode.findValue("results_remaining").asInt();
         if (remainingCount > 0) {
-            matchIdList.sort((matchId1, matchId2) -> matchId1 > matchId2 ? 1 : 0);
-            startAtMatchId = matchIdList.get(0);
-            List<Long> childMatchIdList = getMatchIdBySteamIdAndHeroId(steamId, heroId, startAtMatchId);
-            matchIdList.addAll(childMatchIdList);
+            // 给matchIdList排序，取最早的一个id，新的list从这个开始（包含这个，需要distinct）
+            Collections.sort(matchIdList);
+            Long newStartAtMatchId = matchIdList.get(0);
+            if (!Objects.equals(newStartAtMatchId, startAtMatchId)) {
+                List<Long> childMatchIdList = getMatchIdBySteamIdAndHeroId(steamId, heroId, newStartAtMatchId);
+                matchIdList.addAll(childMatchIdList);
+            }
         }
-        return matchIdList;
+        return matchIdList.stream().distinct().collect(Collectors.toList());
     }
 
-    public void updateMatchDetail(Long matchId) {
+    public void updateMatchDetailByMatchId(Long matchId) {
         String getMatchDetails = "GetMatchDetails/";
         String matchIdStr = "match_id=" + matchId;
         String getHeroUrl = configuration.getIDota2Url() + getMatchDetails + configuration.getApiVersion()

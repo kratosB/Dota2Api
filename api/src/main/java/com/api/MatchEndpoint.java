@@ -55,7 +55,7 @@ public class MatchEndpoint {
     @ApiOperation("根据比赛id，更新比赛详情")
     @RequestMapping(value = "/api/match/updateMatchDetail", method = RequestMethod.GET)
     public void updateMatchDetail(@RequestParam Long matchId) {
-        matchService.updateMatchDetail(matchId);
+        matchService.updateMatchDetailByMatchId(matchId);
     }
 
     // http://api.steampowered.com/IDOTA2Match_570/GetMatchHistory/v1/?key=EFA1E81676FCC47157EA871A67741EF5&account_id=76561198088256001&hero_id=71&start_at_match_id=1848644028
