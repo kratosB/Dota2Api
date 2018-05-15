@@ -187,6 +187,27 @@ public class MatchService {
         });
     }
 
+    public List<Long> getMatchIdBySteamIdAndHeroId(String steamId, int heroId, Long startAtMatchId) {
+        List<Long> matchIdList = new ArrayList<>();
+        GetMatchHistoryReq getMatchHistoryReq = new GetMatchHistoryReq();
+        getMatchHistoryReq.setAccountId(steamId);
+        getMatchHistoryReq.setHeroId((long) heroId);
+        getMatchHistoryReq.setStartAtMatchId(startAtMatchId);
+        String result = getMatchHistory(getMatchHistoryReq);
+        JsonNode resultNode = JsonMapper.nonDefaultMapper().fromJson(result, JsonNode.class);
+        for (JsonNode node : resultNode.findPath("matches")) {
+            matchIdList.add(node.findValue("match_id").asLong());
+        }
+        int remainingCount = resultNode.findValue("results_remaining").asInt();
+        if (remainingCount > 0) {
+            matchIdList.sort((matchId1, matchId2) -> matchId1 > matchId2 ? 1 : 0);
+            startAtMatchId = matchIdList.get(0);
+            List<Long> childMatchIdList = getMatchIdBySteamIdAndHeroId(steamId, heroId, startAtMatchId);
+            matchIdList.addAll(childMatchIdList);
+        }
+        return matchIdList;
+    }
+
     public void updateMatchDetail(Long matchId) {
         String getMatchDetails = "GetMatchDetails/";
         String matchIdStr = "match_id=" + matchId;

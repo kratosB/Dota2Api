@@ -95,6 +95,17 @@ public class MatchEndpoint {
         return matchService.getMatchHistoryByAllHero(steamId);
     }
 
+    @ApiOperation("根据英雄id获取所有比赛的比赛id")
+    @RequestMapping(value = "/api/match/getMatchIdBySteamIdAndHeroId", method = RequestMethod.GET)
+    public List<Long> getMatchIdBySteamIdAndHeroId(
+            @ApiParam(name = "steamId") @RequestParam(name = "steamId", required = false) String steamId,
+            @ApiParam(name = "heroId") @RequestParam(name = "heroId", required = false) int heroId) {
+        if (steamId == null) {
+            steamId = configuration.getAdminSteamId();
+        }
+        return matchService.getMatchIdBySteamIdAndHeroId(steamId, heroId, null);
+    }
+
     private List<BanPickDetails.BanPickHero> sort(BanPickDetails banPickDetails) {
         List<BanPickDetails.BanPickHero> heroList = new ArrayList<>();
         HashMap<Integer, BanPickDetails.BanPickHero> heroes = banPickDetails.getHeroes();

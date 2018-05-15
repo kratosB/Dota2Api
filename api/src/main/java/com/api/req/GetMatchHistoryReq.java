@@ -22,7 +22,7 @@ public class GetMatchHistoryReq {
 
     private String leagueId;
 
-    private String startAtMatchId;
+    private Long startAtMatchId;
 
     private String matchesRequested;
 
