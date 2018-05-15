@@ -52,7 +52,7 @@ public class MatchEndpoint {
         return matchService.getMatchHistory(getMatchHistoryReq);
     }
 
-    @ApiOperation("更新比赛详情")
+    @ApiOperation("根据比赛id，更新比赛详情")
     @RequestMapping(value = "/api/match/updateMatchDetail", method = RequestMethod.GET)
     public void updateMatchDetail(@RequestParam Long matchId) {
         matchService.updateMatchDetail(matchId);

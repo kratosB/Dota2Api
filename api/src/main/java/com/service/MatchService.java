@@ -1,8 +1,10 @@
 package com.service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.config.Configuration;
@@ -193,13 +195,26 @@ public class MatchService {
         RestTemplate restTemplate = new RestTemplate();
         String response = restTemplate.getForObject(getHeroUrl, String.class);
         JsonNode jsonNode = JsonMapper.nonDefaultMapper().fromJson(response, JsonNode.class);
+        // 解析并保存比赛结果
         MatchHistory matchHistory = convertMatchNodeToMatchHistory(jsonNode);
         matchHistoryDao.save(matchHistory);
+        // 查找matchPlayer表，看是否已经有相关数据存在，有的话更新，没有就新增
+        List<MatchPlayer> matchPlayerList = matchPlayerDao.findByMatchId(matchId);
+        Map<Long, Long> map = new HashMap<>(10);
+        if (matchPlayerList.size() != 0) {
+            map.putAll(matchPlayerList.stream().collect(Collectors.toMap(MatchPlayer::getAccountId, MatchPlayer::getId)));
+        }
         JsonNode playersNode = jsonNode.findPath("players");
         Iterator<JsonNode> playerNodeList = playersNode.iterator();
-        List<MatchPlayer> matchPlayerList = new ArrayList<>();
         playerNodeList.forEachRemaining(node -> {
             MatchPlayer matchPlayer = convertMatchPlayerNodeToMatchPlayer(node);
+            // 如果radiantWin是1（true），则playerSlot<10的选手（近卫）赢了，如果radiantWin是0（false），则playerSlot>10的选手（天灾）赢了，其余都是输
+            boolean bool1 = matchHistory.getRadiantWin() == 1 && matchPlayer.getPlayerSlot() < 10;
+            boolean bool2 = matchHistory.getRadiantWin() == 0 && matchPlayer.getPlayerSlot() > 10;
+            matchPlayer.setWin(bool1 | bool2 ? 1 : 0);
+            if (!map.isEmpty()) {
+                matchPlayer.setId(map.get(matchPlayer.getAccountId()));
+            }
             matchPlayer.setMatchId(matchId);
             matchPlayerList.add(matchPlayer);
         });

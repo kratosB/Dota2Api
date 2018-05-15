@@ -20,72 +20,74 @@ public class MatchPlayer {
 
     private Long matchId;
 
+    private int win;
+
     private Long accountId;
 
-    private Integer playerSlot;
+    private int playerSlot;
 
-    private Integer heroId;
+    private int heroId;
 
     @Column(name="item_0")
-    private Integer item0;
+    private int item0;
 
     @Column(name="item_1")
-    private Integer item1;
+    private int item1;
 
     @Column(name="item_2")
-    private Integer item2;
+    private int item2;
 
     @Column(name="item_3")
-    private Integer item3;
+    private int item3;
 
     @Column(name="item_4")
-    private Integer item4;
+    private int item4;
 
     @Column(name="item_5")
-    private Integer item5;
+    private int item5;
 
     @Column(name="backpack_0")
-    private Integer backpack0;
+    private int backpack0;
 
     @Column(name="backpack_1")
-    private Integer backpack1;
+    private int backpack1;
 
     @Column(name="backpack_2")
-    private Integer backpack2;
+    private int backpack2;
 
-    private Integer kills;
+    private int kills;
 
-    private Integer deaths;
+    private int deaths;
 
-    private Integer assists;
+    private int assists;
 
-    private Integer leaverStatus;
+    private int leaverStatus;
 
-    private Integer lastHits;
+    private int lastHits;
 
-    private Integer denies;
+    private int denies;
 
-    private Integer goldPerMin;
+    private int goldPerMin;
 
-    private Integer xpPerMin;
+    private int xpPerMin;
 
-    private Integer level;
+    private int level;
 
-    private Integer heroDamage;
+    private int heroDamage;
 
-    private Integer towerDamage;
+    private int towerDamage;
 
-    private Integer heroHealing;
+    private int heroHealing;
 
-    private Integer gold;
+    private int gold;
 
-    private Integer goldSpent;
+    private int goldSpent;
 
-    private Integer scaledHeroDamage;
+    private int scaledHeroDamage;
 
-    private Integer scaledTowerDamage;
+    private int scaledTowerDamage;
 
-    private Integer scaledHeroHealing;
+    private int scaledHeroHealing;
 
     private String abilityUpgrades;
 
