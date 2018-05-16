@@ -1,11 +1,10 @@
 package com.api;
 
 import com.config.Configuration;
+import com.service.IPlayerService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.service.PlayerService;
 
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -18,12 +17,12 @@ import io.swagger.annotations.ApiParam;
 @RestController
 public class PlayerEndpoint {
 
-    private PlayerService playerService;
+    private IPlayerService playerServiceImpl;
 
     private Configuration configuration;
 
-    public PlayerEndpoint(PlayerService playerService, Configuration configuration) {
-        this.playerService = playerService;
+    public PlayerEndpoint(IPlayerService playerServiceImpl, Configuration configuration) {
+        this.playerServiceImpl = playerServiceImpl;
         this.configuration = configuration;
     }
 
@@ -34,7 +33,7 @@ public class PlayerEndpoint {
         if (steamId == null) {
             steamId = configuration.getAdminSteamId();
         }
-        playerService.updatePlayerDataBySteamId(steamId);
+        playerServiceImpl.updatePlayerDataBySteamId(steamId);
     }
 
     @ApiOperation("根据steamId更新player的friend数据")
@@ -44,6 +43,6 @@ public class PlayerEndpoint {
         if (steamId == null) {
             steamId = configuration.getAdminSteamId();
         }
-        playerService.updateFriendDataBySteamId(steamId);
+        playerServiceImpl.updateFriendDataBySteamId(steamId);
     }
 }

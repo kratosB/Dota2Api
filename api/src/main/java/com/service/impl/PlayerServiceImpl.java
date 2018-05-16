@@ -1,4 +1,4 @@
-package com.service;
+package com.service.impl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,6 +6,7 @@ import java.util.List;
 import com.config.Configuration;
 import com.dao.RelationDao;
 import com.dao.entity.Relation;
+import com.service.IPlayerService;
 import com.util.SteamIdConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,7 +23,7 @@ import com.util.JsonMapper;
  * @author zhiqiang bao
  */
 @Service
-public class PlayerService {
+public class PlayerServiceImpl implements IPlayerService {
 
     private PlayerDao playerDao;
 
@@ -31,16 +32,18 @@ public class PlayerService {
     private Configuration configuration;
 
     @Autowired
-    public PlayerService(PlayerDao playerDao, Configuration configuration, RelationDao relationDao) {
+    public PlayerServiceImpl(PlayerDao playerDao, Configuration configuration, RelationDao relationDao) {
         this.playerDao = playerDao;
         this.configuration = configuration;
         this.relationDao = relationDao;
     }
 
+    @Override
     public void updatePlayerDataBySteamId(String steamId) {
         updatePlayerData(steamId);
     }
 
+    @Override
     public void updateFriendDataBySteamId(String steamId) {
         String getFriendList = "GetFriendList/";
         String steamIdKey = "steamid=";
@@ -76,7 +79,7 @@ public class PlayerService {
         playerNodes.forEach(playerNode -> {
             Player player = new Player();
             player.setSteamid(playerNode.findValue("steamid").asText());
-            player.setDotaAccountId(SteamIdConverter.defaultInstance().convert(playerNode.findValue("steamid").asText()));
+            player.setDotaAccountId(SteamIdConverter.defaultInstance().getId32(playerNode.findValue("steamid").asText()));
             player.setCommunityvisibilitystate(playerNode.findValue("communityvisibilitystate").asInt());
             player.setProfilestate(playerNode.findValue("profilestate") != null ? playerNode.findValue("profilestate").asInt() : 0);
             player.setPersonaname(playerNode.findValue("personaname").asText());
