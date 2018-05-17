@@ -16,14 +16,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import com.api.req.GetMatchHistoryReq;
-import com.bean.match.BanPickDetails;
-import com.bean.match.BanPicks;
-import com.bean.match.LeaguesEntity;
-import com.bean.match.Match;
 import com.bean.match.MatchDetail;
 import com.bean.match.MatchDetailEntity;
-import com.bean.match.MatchesEntity;
-import com.bean.match.MatchesHistory;
 import com.dao.entity.Hero;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.util.JsonMapper;
@@ -46,37 +40,20 @@ public class MatchServiceImpl implements IMatchService {
 
     private String matchesPath = "matches";
 
-    private String TRUE = "true";
+    private RestTemplate restTemplate = new RestTemplate();
+
+    /**
+     * 如果用户没有开放权限，是没法拉到用户比赛数据的
+     */
+    private String cannotGetMatchHistoryForAUserThatHasNotAllowedIt = "Cannot get match history for a user that hasn't allowed it";
 
     @Autowired
     public MatchServiceImpl(IHeroService heroServiceImpl, Configuration configuration, MatchHistoryDao matchHistoryDao,
-                            MatchPlayerDao matchPlayerDao) {
+            MatchPlayerDao matchPlayerDao) {
         this.heroServiceImpl = heroServiceImpl;
         this.configuration = configuration;
         this.matchHistoryDao = matchHistoryDao;
         this.matchPlayerDao = matchPlayerDao;
-    }
-
-    @Override
-    public LeaguesEntity listLeague() {
-        String getLeague = "GetLeagueListing/";
-        String language = "language=zh";
-        String getHeroUrl = configuration.getIDota2Url() + getLeague + configuration.getApiVersion() + configuration.getApiKey()
-                + configuration.getApiAnd() + language;
-        RestTemplate restTemplate = new RestTemplate();
-        String response = restTemplate.getForObject(getHeroUrl, String.class);
-        return JsonMapper.nonDefaultMapper().fromJson(response, LeaguesEntity.class);
-    }
-
-    @Override
-    public MatchesEntity getLeague(int leagueId) {
-        String getMatchHistory = "GetMatchHistory/";
-        String leagueIdStr = "league_id=" + leagueId;
-        String getHeroUrl = configuration.getIDota2Url() + getMatchHistory + configuration.getApiVersion()
-                + configuration.getApiKey() + configuration.getApiAnd() + leagueIdStr;
-        RestTemplate restTemplate = new RestTemplate();
-        String response = restTemplate.getForObject(getHeroUrl, String.class);
-        return JsonMapper.nonDefaultMapper().fromJson(response, MatchesEntity.class);
     }
 
     @Override
@@ -115,18 +92,7 @@ public class MatchServiceImpl implements IMatchService {
         if (getMatchHistoryReq.getDateMin() != null) {
             sb.append(configuration.getApiAnd()).append("date_min=").append(getMatchHistoryReq.getDateMin());
         }
-        RestTemplate restTemplate = new RestTemplate();
         return restTemplate.getForObject(sb.toString(), String.class);
-    }
-
-    @Override
-    public List<Match> getLeagueAfter(int leagueId, long matchId) {
-        MatchesEntity entity = getLeague(leagueId);
-        MatchesHistory matchHistory = entity.getResult();
-        List<Match> matches = matchHistory.getMatches();
-        List<Match> matchList = matches.stream().filter(match -> match.getMatch_id() == matchId).collect(Collectors.toList());
-        Match firstMatch = matchList.get(0);
-        return matches.stream().filter(match -> match.getMatch_id() >= firstMatch.getMatch_id()).collect(Collectors.toList());
     }
 
     @Override
@@ -135,7 +101,6 @@ public class MatchServiceImpl implements IMatchService {
         String matchIdStr = "match_id=" + matchId;
         String getHeroUrl = configuration.getIDota2Url() + getMatchDetails + configuration.getApiVersion()
                 + configuration.getApiKey() + configuration.getApiAnd() + matchIdStr;
-        RestTemplate restTemplate = new RestTemplate();
         String response = restTemplate.getForObject(getHeroUrl, String.class);
         MatchDetailEntity matchDetailEntity = JsonMapper.nonDefaultMapper().fromJson(response, MatchDetailEntity.class);
         return matchDetailEntity.getResult();
@@ -160,29 +125,12 @@ public class MatchServiceImpl implements IMatchService {
     }
 
     @Override
-    public BanPickDetails getBanPick(int leagueId, long matchId) {
-        BanPickDetails banPickDetails = new BanPickDetails();
-        List<Match> matches = getLeagueAfter(leagueId, matchId);
-        List<Long> matchIds = new ArrayList<>();
-        matches.forEach(match -> matchIds.add(match.getMatch_id()));
-        matchIds.forEach(matchId1 -> {
-            MatchDetail matchDetail = getMatchDetail(matchId1);
-            List<BanPicks> banPickList = matchDetail.getPicks_bans();
-            String isRadiantWin = matchDetail.getRadiant_win();
-            if (StringUtils.equals(isRadiantWin, TRUE)) {
-                // team 0 win
-                banPickWin(banPickDetails, banPickList, 0);
-            } else {
-                // team 1 win
-                banPickWin(banPickDetails, banPickList, 1);
-            }
-        });
-        return banPickDetails;
-    }
-
-    @Override
     public void updateMatchDetail(String steamId, int heroId) {
-        List<Long> matchId = getMatchIdBySteamIdAndHeroId(steamId, heroId, null);
+        List<Long> matchIdList = getMatchIdBySteamIdAndHeroId(steamId, heroId, null);
+        List<MatchHistory> existedMatchHistoryList = matchHistoryDao.findAll(matchIdList);
+        List<Long> existedMatchIdList = existedMatchHistoryList.stream().map(MatchHistory::getMatchId).collect(Collectors.toList());
+        matchIdList.removeAll(existedMatchIdList);
+        System.out.println();
     }
 
     @Override
@@ -193,6 +141,10 @@ public class MatchServiceImpl implements IMatchService {
         getMatchHistoryReq.setHeroId((long) heroId);
         getMatchHistoryReq.setStartAtMatchId(startAtMatchId);
         String result = getMatchHistory(getMatchHistoryReq);
+        // 如果用户没有开放权限，是没法拉到用户比赛数据的
+        if (result.contains(cannotGetMatchHistoryForAUserThatHasNotAllowedIt)) {
+            return new ArrayList<>();
+        }
         JsonNode resultNode = JsonMapper.nonDefaultMapper().fromJson(result, JsonNode.class);
         for (JsonNode node : resultNode.findPath(matchesPath)) {
             matchIdList.add(node.findValue("match_id").asLong());
@@ -218,7 +170,6 @@ public class MatchServiceImpl implements IMatchService {
         String matchIdStr = "match_id=" + matchId;
         String getHeroUrl = configuration.getIDota2Url() + getMatchDetails + configuration.getApiVersion()
                 + configuration.getApiKey() + configuration.getApiAnd() + matchIdStr;
-        RestTemplate restTemplate = new RestTemplate();
         String response = restTemplate.getForObject(getHeroUrl, String.class);
         JsonNode jsonNode = JsonMapper.nonDefaultMapper().fromJson(response, JsonNode.class);
         // 解析并保存比赛结果
@@ -247,22 +198,6 @@ public class MatchServiceImpl implements IMatchService {
         matchPlayerDao.save(matchPlayerList);
     }
 
-    private void banPickWin(BanPickDetails banPickDetails, List<BanPicks> banPickList, int winTeamId) {
-        banPickList.forEach(banPick -> {
-            String isPick = banPick.getIs_pick();
-            if (StringUtils.equals(isPick, TRUE)) {
-                banPickDetails.pickHero(banPick.getHero_id());
-                if (banPick.getTeam() == winTeamId) {
-                    banPickDetails.addWinCount(banPick.getHero_id());
-                } else {
-                    banPickDetails.addLoseCount(banPick.getHero_id());
-                }
-            } else {
-                banPickDetails.banHero(banPick.getHero_id());
-            }
-        });
-    }
-
     private MatchHistory convertMatchNodeToMatchHistory(JsonNode matchNode) {
         MatchHistory matchHistory = new MatchHistory();
         matchHistory.setMatchId(matchNode.findValue("match_id").asLong());
@@ -287,17 +222,24 @@ public class MatchServiceImpl implements IMatchService {
         matchHistory.setEngine(matchNode.findValue("engine").asInt());
         matchHistory.setRadiantScore(matchNode.findValue("radiant_score").asInt());
         matchHistory.setDireScore(matchNode.findValue("dire_score").asInt());
-        matchHistory.setRadiantTeamId(matchNode.findValue("radiant_team_id").asInt());
-        matchHistory.setRadiantName(matchNode.findValue("radiant_name").asText());
-        matchHistory.setRadiantLogo(matchNode.findValue("radiant_logo").asLong());
-        matchHistory.setRadiantTeamComplete(matchNode.findValue("radiant_team_complete").asInt());
-        matchHistory.setRadiantCaptain(matchNode.findValue("radiant_captain").asLong());
-        matchHistory.setDireTeamId(matchNode.findValue("dire_team_id").asInt());
-        matchHistory.setDireName(matchNode.findValue("dire_name").asText());
-        matchHistory.setDireLogo(matchNode.findValue("dire_logo").asLong());
-        matchHistory.setDireTeamComplete(matchNode.findValue("dire_team_complete").asInt());
-        matchHistory.setDireCaptain(matchNode.findValue("dire_captain").asLong());
-        matchHistory.setPicksBans(JsonMapper.nonDefaultMapper().toJson(matchNode.findValue("picks_bans")));
+        String radiantTeamId = "radiant_team_id";
+        if (matchNode.findValue(radiantTeamId) != null) {
+            matchHistory.setRadiantTeamId(matchNode.findValue("radiant_team_id").asInt());
+            matchHistory.setRadiantName(matchNode.findValue("radiant_name").asText());
+            matchHistory.setRadiantLogo(matchNode.findValue("radiant_logo").asLong());
+            matchHistory.setRadiantTeamComplete(matchNode.findValue("radiant_team_complete").asInt());
+            matchHistory.setRadiantCaptain(matchNode.findValue("radiant_captain").asLong());
+        }
+        String direTeamId = "dire_team_id";
+        if (matchNode.findValue(direTeamId) != null) {
+            matchHistory.setDireTeamId(matchNode.findValue("dire_team_id").asInt());
+            matchHistory.setDireName(matchNode.findValue("dire_name").asText());
+            matchHistory.setDireLogo(matchNode.findValue("dire_logo").asLong());
+            matchHistory.setDireTeamComplete(matchNode.findValue("dire_team_complete").asInt());
+            matchHistory.setDireCaptain(matchNode.findValue("dire_captain").asLong());
+        }
+        matchHistory.setPicksBans(matchNode.findValue("picks_bans") == null ? null
+                : JsonMapper.nonDefaultMapper().toJson(matchNode.findValue("picks_bans")));
         return matchHistory;
     }
 
