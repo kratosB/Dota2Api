@@ -1,23 +1,26 @@
-package com.service.impl;
+package com.service.local.impl;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
-import com.config.Configuration;
 import com.dao.MatchHistoryDao;
 import com.dao.MatchPlayerDao;
 import com.dao.entity.MatchHistory;
 import com.dao.entity.MatchPlayer;
-import com.service.IHeroService;
-import com.service.IMatchService;
+import com.service.local.IHeroService;
+import com.service.local.IMatchService;
+import com.service.steam.ISteamMatchService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 import com.api.req.GetMatchHistoryReq;
-import com.bean.match.MatchDetail;
-import com.bean.match.MatchDetailEntity;
 import com.dao.entity.Hero;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.util.JsonMapper;
@@ -32,15 +35,13 @@ public class MatchServiceImpl implements IMatchService {
 
     private IHeroService heroServiceImpl;
 
-    private Configuration configuration;
-
     private MatchHistoryDao matchHistoryDao;
 
     private MatchPlayerDao matchPlayerDao;
 
-    private String matchesPath = "matches";
+    private ISteamMatchService steamMatchServiceImpl;
 
-    private RestTemplate restTemplate = new RestTemplate();
+    private String matchesPath = "matches";
 
     /**
      * 如果用户没有开放权限，是没法拉到用户比赛数据的
@@ -48,62 +49,12 @@ public class MatchServiceImpl implements IMatchService {
     private String cannotGetMatchHistoryForAUserThatHasNotAllowedIt = "Cannot get match history for a user that hasn't allowed it";
 
     @Autowired
-    public MatchServiceImpl(IHeroService heroServiceImpl, Configuration configuration, MatchHistoryDao matchHistoryDao,
-            MatchPlayerDao matchPlayerDao) {
+    public MatchServiceImpl(IHeroService heroServiceImpl, MatchHistoryDao matchHistoryDao, MatchPlayerDao matchPlayerDao,
+            ISteamMatchService steamMatchServiceImpl) {
         this.heroServiceImpl = heroServiceImpl;
-        this.configuration = configuration;
         this.matchHistoryDao = matchHistoryDao;
         this.matchPlayerDao = matchPlayerDao;
-    }
-
-    @Override
-    public String getMatchHistory(GetMatchHistoryReq getMatchHistoryReq) {
-        String getMatchHistory = "GetMatchHistory/";
-        StringBuilder sb = new StringBuilder();
-        sb.append(configuration.getIDota2Url()).append(getMatchHistory).append(configuration.getApiVersion())
-                .append(configuration.getApiKey());
-        if (getMatchHistoryReq.getAccountId() != null) {
-            sb.append(configuration.getApiAnd()).append("account_id=").append(getMatchHistoryReq.getAccountId());
-        }
-        if (getMatchHistoryReq.getGameMode() != null) {
-            sb.append(configuration.getApiAnd()).append("game_mode=").append(getMatchHistoryReq.getGameMode());
-        }
-        if (getMatchHistoryReq.getHeroId() != null) {
-            sb.append(configuration.getApiAnd()).append("hero_id=").append(getMatchHistoryReq.getHeroId());
-        }
-        if (getMatchHistoryReq.getLeagueId() != null) {
-            sb.append(configuration.getApiAnd()).append("league_id=").append(getMatchHistoryReq.getLeagueId());
-        }
-        if (getMatchHistoryReq.getMatchesRequested() != null) {
-            sb.append(configuration.getApiAnd()).append("matches_requested=").append(getMatchHistoryReq.getMatchesRequested());
-        }
-        if (getMatchHistoryReq.getMinPlayers() != null) {
-            sb.append(configuration.getApiAnd()).append("min_players=").append(getMatchHistoryReq.getMinPlayers());
-        }
-        if (getMatchHistoryReq.getSkill() != null) {
-            sb.append(configuration.getApiAnd()).append("skill=").append(getMatchHistoryReq.getSkill());
-        }
-        if (getMatchHistoryReq.getStartAtMatchId() != null) {
-            sb.append(configuration.getApiAnd()).append("start_at_match_id=").append(getMatchHistoryReq.getStartAtMatchId());
-        }
-        if (getMatchHistoryReq.getDateMax() != null) {
-            sb.append(configuration.getApiAnd()).append("date_max=").append(getMatchHistoryReq.getDateMax());
-        }
-        if (getMatchHistoryReq.getDateMin() != null) {
-            sb.append(configuration.getApiAnd()).append("date_min=").append(getMatchHistoryReq.getDateMin());
-        }
-        return restTemplate.getForObject(sb.toString(), String.class);
-    }
-
-    @Override
-    public MatchDetail getMatchDetail(long matchId) {
-        String getMatchDetails = "GetMatchDetails/";
-        String matchIdStr = "match_id=" + matchId;
-        String getHeroUrl = configuration.getIDota2Url() + getMatchDetails + configuration.getApiVersion()
-                + configuration.getApiKey() + configuration.getApiAnd() + matchIdStr;
-        String response = restTemplate.getForObject(getHeroUrl, String.class);
-        MatchDetailEntity matchDetailEntity = JsonMapper.nonDefaultMapper().fromJson(response, MatchDetailEntity.class);
-        return matchDetailEntity.getResult();
+        this.steamMatchServiceImpl = steamMatchServiceImpl;
     }
 
     @Override
@@ -115,7 +66,7 @@ public class MatchServiceImpl implements IMatchService {
             GetMatchHistoryReq getMatchHistoryReq = new GetMatchHistoryReq();
             getMatchHistoryReq.setAccountId(steamId);
             getMatchHistoryReq.setHeroId(Long.valueOf(heroId));
-            String result = getMatchHistory(getMatchHistoryReq);
+            String result = steamMatchServiceImpl.getMatchHistory(getMatchHistoryReq);
             JsonNode resultNode = JsonMapper.nonDefaultMapper().fromJson(result, JsonNode.class);
             for (JsonNode node : resultNode.findPath(matchesPath)) {
                 sb.append(node.findValuesAsText("match_id")).append(",");
@@ -140,7 +91,7 @@ public class MatchServiceImpl implements IMatchService {
         getMatchHistoryReq.setAccountId(steamId);
         getMatchHistoryReq.setHeroId((long) heroId);
         getMatchHistoryReq.setStartAtMatchId(startAtMatchId);
-        String result = getMatchHistory(getMatchHistoryReq);
+        String result = steamMatchServiceImpl.getMatchHistory(getMatchHistoryReq);
         // 如果用户没有开放权限，是没法拉到用户比赛数据的
         if (result.contains(cannotGetMatchHistoryForAUserThatHasNotAllowedIt)) {
             return new ArrayList<>();
@@ -166,11 +117,7 @@ public class MatchServiceImpl implements IMatchService {
 
     @Override
     public void updateMatchDetailByMatchId(Long matchId) {
-        String getMatchDetails = "GetMatchDetails/";
-        String matchIdStr = "match_id=" + matchId;
-        String getHeroUrl = configuration.getIDota2Url() + getMatchDetails + configuration.getApiVersion()
-                + configuration.getApiKey() + configuration.getApiAnd() + matchIdStr;
-        String response = restTemplate.getForObject(getHeroUrl, String.class);
+        String response = steamMatchServiceImpl.getMatchDetailByMatchId(matchId);
         JsonNode jsonNode = JsonMapper.nonDefaultMapper().fromJson(response, JsonNode.class);
         // 解析并保存比赛结果
         MatchHistory matchHistory = convertMatchNodeToMatchHistory(jsonNode);

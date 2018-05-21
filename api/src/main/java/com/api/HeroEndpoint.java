@@ -1,7 +1,8 @@
 package com.api;
 
 import com.dao.entity.Hero;
-import com.service.IHeroService;
+import com.service.local.IHeroService;
+import com.service.steam.ISteamHeroItemService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,9 +23,12 @@ public class HeroEndpoint {
 
     private IHeroService heroServiceImpl;
 
+    private ISteamHeroItemService steamHeroItemServiceImpl;
+
     @Autowired
-    public HeroEndpoint(IHeroService heroServiceImpl) {
+    public HeroEndpoint(IHeroService heroServiceImpl, ISteamHeroItemService steamHeroItemServiceImpl) {
         this.heroServiceImpl = heroServiceImpl;
+        this.steamHeroItemServiceImpl = steamHeroItemServiceImpl;
     }
 
     @ApiOperation("获取所有hero")
@@ -43,6 +47,6 @@ public class HeroEndpoint {
     @ApiOperation("从steam更新hero数据")
     @PostMapping(value = "/api/hero/updateHeroData")
     public void updateHeroData() {
-        heroServiceImpl.updateHeroData();
+        steamHeroItemServiceImpl.updateHeroData();
     }
 }

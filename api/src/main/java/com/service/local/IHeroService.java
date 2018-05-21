@@ -1,4 +1,4 @@
-package com.service;
+package com.service.local;
 
 import com.dao.entity.Hero;
 
@@ -26,10 +26,5 @@ public interface IHeroService {
      * @return 对应的hero信息
      */
     Hero findById(int id);
-
-    /**
-     * 调用steam接口，更新hero表的数据
-     */
-    void updateHeroData();
 
 }

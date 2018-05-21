@@ -3,7 +3,8 @@ package com.api;
 import com.api.req.GetMatchHistoryReq;
 import com.bean.match.MatchDetail;
 import com.config.Configuration;
-import com.service.IMatchService;
+import com.service.local.IMatchService;
+import com.service.steam.ISteamMatchService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,18 +26,21 @@ public class MatchEndpoint {
 
     private IMatchService matchServiceImpl;
 
+    private ISteamMatchService steamMatchServiceImpl;
+
     private Configuration configuration;
 
     @Autowired
-    public MatchEndpoint(Configuration configuration, IMatchService matchServiceImpl) {
+    public MatchEndpoint(Configuration configuration, IMatchService matchServiceImpl, ISteamMatchService steamMatchServiceImpl) {
         this.configuration = configuration;
         this.matchServiceImpl = matchServiceImpl;
+        this.steamMatchServiceImpl = steamMatchServiceImpl;
     }
 
     @ApiOperation("获取比赛历史")
     @PostMapping(value = "/api/match/getMatchHistory")
     public String getMatchHistory(@RequestBody GetMatchHistoryReq getMatchHistoryReq) {
-        return matchServiceImpl.getMatchHistory(getMatchHistoryReq);
+        return steamMatchServiceImpl.getMatchHistory(getMatchHistoryReq);
     }
 
     @ApiOperation("根据比赛id，更新比赛详情")
@@ -60,7 +64,7 @@ public class MatchEndpoint {
     @ApiOperation("获取某场比赛的具体信息")
     @GetMapping(value = "/api/match/getMatchDetail")
     public MatchDetail getMatchDetail(@ApiParam(name = "matchId", required = true) @RequestParam(name = "matchId") long matchId) {
-        return matchServiceImpl.getMatchDetail(matchId);
+        return steamMatchServiceImpl.getMatchDetail(matchId);
     }
 
     @ApiOperation("根据英雄id获取所有比赛的比赛id")

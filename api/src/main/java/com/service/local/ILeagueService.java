@@ -1,4 +1,4 @@
-package com.service;
+package com.service.local;
 
 import com.bean.match.BanPickDetails;
 import com.bean.match.LeaguesEntity;

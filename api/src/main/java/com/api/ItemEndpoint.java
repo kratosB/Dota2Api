@@ -1,7 +1,8 @@
 package com.api;
 
 import com.dao.entity.Item;
-import com.service.IItemService;
+import com.service.local.IItemService;
+import com.service.steam.ISteamHeroItemService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,9 +23,12 @@ public class ItemEndpoint {
 
     private IItemService itemServiceImpl;
 
+    private ISteamHeroItemService steamHeroItemServiceImpl;
+
     @Autowired
-    public ItemEndpoint(IItemService itemServiceImpl) {
+    public ItemEndpoint(IItemService itemServiceImpl, ISteamHeroItemService steamHeroItemServiceImpl) {
         this.itemServiceImpl = itemServiceImpl;
+        this.steamHeroItemServiceImpl = steamHeroItemServiceImpl;
     }
 
     @ApiOperation("获取所有item")
@@ -43,7 +47,7 @@ public class ItemEndpoint {
     @ApiOperation("从steam更新item数据")
     @PostMapping(value = "/api/item/updateItemData")
     public void updateItemData() {
-        itemServiceImpl.updateItemData();
+        steamHeroItemServiceImpl.updateItemData();
     }
 
 }

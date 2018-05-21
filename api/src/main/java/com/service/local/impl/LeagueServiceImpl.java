@@ -1,4 +1,4 @@
-package com.service.impl;
+package com.service.local.impl;
 
 import com.bean.match.BanPickDetails;
 import com.bean.match.BanPicks;
@@ -8,8 +8,8 @@ import com.bean.match.MatchDetail;
 import com.bean.match.MatchesEntity;
 import com.bean.match.MatchesHistory;
 import com.config.Configuration;
-import com.service.ILeagueService;
-import com.service.IMatchService;
+import com.service.local.ILeagueService;
+import com.service.steam.ISteamMatchService;
 import com.util.JsonMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,16 +30,16 @@ public class LeagueServiceImpl implements ILeagueService {
 
     private Configuration configuration;
 
-    private IMatchService matchServiceImpl;
+    private ISteamMatchService steamMatchServiceImpl;
 
     private String stringTrue = "true";
 
     private RestTemplate restTemplate = new RestTemplate();
 
     @Autowired
-    public LeagueServiceImpl(Configuration configuration, IMatchService matchServiceImpl) {
+    public LeagueServiceImpl(Configuration configuration, ISteamMatchService steamMatchServiceImpl) {
         this.configuration = configuration;
-        this.matchServiceImpl = matchServiceImpl;
+        this.steamMatchServiceImpl = steamMatchServiceImpl;
     }
 
     @Override
@@ -79,7 +79,7 @@ public class LeagueServiceImpl implements ILeagueService {
         List<Long> matchIds = new ArrayList<>();
         matches.forEach(match -> matchIds.add(match.getMatch_id()));
         matchIds.forEach(matchId1 -> {
-            MatchDetail matchDetail = matchServiceImpl.getMatchDetail(matchId1);
+            MatchDetail matchDetail = steamMatchServiceImpl.getMatchDetail(matchId1);
             List<BanPicks> banPickList = matchDetail.getPicks_bans();
             String isRadiantWin = matchDetail.getRadiant_win();
             if (StringUtils.equals(isRadiantWin, stringTrue)) {

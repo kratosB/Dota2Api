@@ -1,7 +1,7 @@
 package com.api;
 
 import com.config.Configuration;
-import com.service.IPlayerService;
+import com.service.local.IPlayerService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;

@@ -1,4 +1,4 @@
-package com.service.impl;
+package com.service.local.impl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,7 +6,7 @@ import java.util.List;
 import com.config.Configuration;
 import com.dao.RelationDao;
 import com.dao.entity.Relation;
-import com.service.IPlayerService;
+import com.service.local.IPlayerService;
 import com.util.SteamIdConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

@@ -1,4 +1,4 @@
-package com.service;
+package com.service.local;
 
 import com.dao.entity.Item;
 
@@ -27,8 +27,4 @@ public interface IItemService {
      */
     Item findById(int id);
 
-    /**
-     * 调用steam接口，更新item表的数据
-     */
-    void updateItemData();
 }

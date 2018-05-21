@@ -1,4 +1,4 @@
-package com.service;
+package com.service.local;
 
 import com.api.req.GetMatchHistoryReq;
 import com.bean.match.BanPickDetails;
@@ -15,10 +15,6 @@ import java.util.List;
  * @author zhiqiang bao
  */
 public interface IMatchService {
-
-    String getMatchHistory(GetMatchHistoryReq getMatchHistoryReq);
-
-    MatchDetail getMatchDetail(long matchId);
 
     String getMatchHistoryByAllHero(String steamId);
 
