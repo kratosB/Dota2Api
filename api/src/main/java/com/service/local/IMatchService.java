@@ -1,12 +1,5 @@
 package com.service.local;
 
-import com.api.req.GetMatchHistoryReq;
-import com.bean.match.BanPickDetails;
-import com.bean.match.LeaguesEntity;
-import com.bean.match.Match;
-import com.bean.match.MatchDetail;
-import com.bean.match.MatchesEntity;
-
 import java.util.List;
 
 /**
@@ -16,9 +9,7 @@ import java.util.List;
  */
 public interface IMatchService {
 
-    String getMatchHistoryByAllHero(String steamId);
-
-    void updateMatchDetail(String steamId, int heroId);
+    void updateMatchDetail(String steamId);
 
     /**
      * 从steam，根据heroId，steamId，获取某一个用户的，从某场比赛开始（往前，更老的）的，所有该英雄的比赛id

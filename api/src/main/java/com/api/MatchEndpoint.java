@@ -49,14 +49,13 @@ public class MatchEndpoint {
         matchServiceImpl.updateMatchDetailByMatchId(matchId);
     }
 
-    @ApiOperation("根据比赛steamId,heroId，批量更新比赛详情")
+    @ApiOperation("根据比赛steamId，批量更新比赛详情")
     @GetMapping(value = "/api/match/updateMatchDetail")
-    public void updateMatchDetail(@ApiParam(name = "steamId") @RequestParam(name = "steamId", required = false) String steamId,
-            @ApiParam(name = "heroId") @RequestParam(name = "heroId", required = false) int heroId) {
+    public void updateMatchDetail(@ApiParam(name = "steamId") @RequestParam(name = "steamId", required = false) String steamId) {
         if (steamId == null) {
             steamId = configuration.getAdminSteamId();
         }
-        matchServiceImpl.updateMatchDetail(steamId, heroId);
+        matchServiceImpl.updateMatchDetail(steamId);
     }
 
     // http://api.steampowered.com/IDOTA2Match_570/GetMatchHistory/v1/?key=EFA1E81676FCC47157EA871A67741EF5&account_id=76561198088256001&hero_id=71&start_at_match_id=1848644028
@@ -65,16 +64,6 @@ public class MatchEndpoint {
     @GetMapping(value = "/api/match/getMatchDetail")
     public MatchDetail getMatchDetail(@ApiParam(name = "matchId", required = true) @RequestParam(name = "matchId") long matchId) {
         return steamMatchServiceImpl.getMatchDetail(matchId);
-    }
-
-    @ApiOperation("根据英雄id获取所有比赛的比赛id")
-    @GetMapping(value = "/api/match/getMatchHistoryByAllHero")
-    public String getMatchHistoryByAllHero(
-            @ApiParam(name = "steamId") @RequestParam(name = "steamId", required = false) String steamId) {
-        if (steamId == null) {
-            steamId = configuration.getAdminSteamId();
-        }
-        return matchServiceImpl.getMatchHistoryByAllHero(steamId);
     }
 
     @ApiOperation("根据英雄id获取所有比赛的比赛id")

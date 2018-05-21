@@ -41,13 +41,6 @@ public class MatchServiceImpl implements IMatchService {
 
     private ISteamMatchService steamMatchServiceImpl;
 
-    private String matchesPath = "matches";
-
-    /**
-     * 如果用户没有开放权限，是没法拉到用户比赛数据的
-     */
-    private String cannotGetMatchHistoryForAUserThatHasNotAllowedIt = "Cannot get match history for a user that hasn't allowed it";
-
     @Autowired
     public MatchServiceImpl(IHeroService heroServiceImpl, MatchHistoryDao matchHistoryDao, MatchPlayerDao matchPlayerDao,
             ISteamMatchService steamMatchServiceImpl) {
@@ -58,30 +51,23 @@ public class MatchServiceImpl implements IMatchService {
     }
 
     @Override
-    public String getMatchHistoryByAllHero(String steamId) {
-        StringBuilder sb = new StringBuilder();
+    public void updateMatchDetail(String steamId) {
+        List<Long> matchIdList = new ArrayList<>(50);
         List<Hero> heroList = heroServiceImpl.listAll();
         List<Integer> heroIdList = heroList.stream().map(Hero::getId).collect(Collectors.toList());
         heroIdList.forEach(heroId -> {
-            GetMatchHistoryReq getMatchHistoryReq = new GetMatchHistoryReq();
-            getMatchHistoryReq.setAccountId(steamId);
-            getMatchHistoryReq.setHeroId(Long.valueOf(heroId));
-            String result = steamMatchServiceImpl.getMatchHistory(getMatchHistoryReq);
-            JsonNode resultNode = JsonMapper.nonDefaultMapper().fromJson(result, JsonNode.class);
-            for (JsonNode node : resultNode.findPath(matchesPath)) {
-                sb.append(node.findValuesAsText("match_id")).append(",");
+            List<Long> heroMatchIdList = getMatchIdBySteamIdAndHeroId(steamId, heroId, null);
+            matchIdList.addAll(heroMatchIdList);
+            try {
+                Thread.sleep(10000);
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
             }
         });
-        return sb.toString();
-    }
-
-    @Override
-    public void updateMatchDetail(String steamId, int heroId) {
-        List<Long> matchIdList = getMatchIdBySteamIdAndHeroId(steamId, heroId, null);
         List<MatchHistory> existedMatchHistoryList = matchHistoryDao.findAll(matchIdList);
         List<Long> existedMatchIdList = existedMatchHistoryList.stream().map(MatchHistory::getMatchId).collect(Collectors.toList());
         matchIdList.removeAll(existedMatchIdList);
-        System.out.println();
+        System.out.println(JsonMapper.nonDefaultMapper().toJson(matchIdList));
     }
 
     @Override
@@ -92,11 +78,16 @@ public class MatchServiceImpl implements IMatchService {
         getMatchHistoryReq.setHeroId((long) heroId);
         getMatchHistoryReq.setStartAtMatchId(startAtMatchId);
         String result = steamMatchServiceImpl.getMatchHistory(getMatchHistoryReq);
+        /*
+         * 如果用户没有开放权限，是没法拉到用户比赛数据的
+         */
+        String cannotGetMatchHistoryForAUserThatHasNotAllowedIt = "Cannot get match history for a user that hasn't allowed it";
         // 如果用户没有开放权限，是没法拉到用户比赛数据的
         if (result.contains(cannotGetMatchHistoryForAUserThatHasNotAllowedIt)) {
             return new ArrayList<>();
         }
         JsonNode resultNode = JsonMapper.nonDefaultMapper().fromJson(result, JsonNode.class);
+        String matchesPath = "matches";
         for (JsonNode node : resultNode.findPath(matchesPath)) {
             matchIdList.add(node.findValue("match_id").asLong());
         }
