@@ -42,6 +42,8 @@ public class MatchServiceImpl implements IMatchService {
 
     private ISteamMatchService steamMatchServiceImpl;
 
+    private int loopSize = 100;
+
     @Autowired
     public MatchServiceImpl(IHeroService heroServiceImpl, MatchHistoryDao matchHistoryDao, MatchPlayerDao matchPlayerDao,
             ISteamMatchService steamMatchServiceImpl) {
@@ -52,7 +54,7 @@ public class MatchServiceImpl implements IMatchService {
     }
 
     @Override
-    public void updateMatchDetail(String steamId) {
+    public void updateMatchId(String steamId) {
         List<Long> matchIdList = new ArrayList<>(50);
         List<Hero> heroList = heroServiceImpl.listAll();
         List<Integer> heroIdList = heroList.stream().map(Hero::getId).collect(Collectors.toList());
@@ -60,7 +62,7 @@ public class MatchServiceImpl implements IMatchService {
             List<Long> heroMatchIdList = getMatchIdBySteamIdAndHeroId(steamId, heroId, null);
             matchIdList.addAll(heroMatchIdList);
             try {
-                Thread.sleep(1000);
+                Thread.sleep(4000);
             } catch (Exception e) {
                 System.out.println(e.getMessage());
             }
@@ -68,7 +70,23 @@ public class MatchServiceImpl implements IMatchService {
         List<MatchHistory> existedMatchHistoryList = matchHistoryDao.findAll(matchIdList);
         List<Long> existedMatchIdList = existedMatchHistoryList.stream().map(MatchHistory::getMatchId).collect(Collectors.toList());
         matchIdList.removeAll(existedMatchIdList);
-        System.out.println(JsonMapper.nonDefaultMapper().toJson(matchIdList));
+        List<MatchHistory> matchHistoryList = new ArrayList<>(100);
+        matchIdList.forEach(matchId -> {
+            MatchHistory matchHistory = new MatchHistory();
+            matchHistory.setMatchId(matchId);
+            matchHistory.setCreatedTime(new Date());
+            matchHistoryList.add(matchHistory);
+        });
+        // 数据量太多的时候（几千条），一次性save怕出错
+        while (matchHistoryList.size() > loopSize) {
+            List<MatchHistory> saveList = new ArrayList<>(100);
+            for (int i = 0; i < loopSize && i < matchHistoryList.size(); i++) {
+                saveList.add(matchHistoryList.get(i));
+            }
+            matchHistoryDao.save(saveList);
+            matchHistoryList.removeAll(saveList);
+        }
+        matchHistoryDao.save(matchHistoryList);
     }
 
     @Override

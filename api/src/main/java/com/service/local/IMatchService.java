@@ -9,7 +9,7 @@ import java.util.List;
  */
 public interface IMatchService {
 
-    void updateMatchDetail(String steamId);
+    void updateMatchId(String steamId);
 
     /**
      * 从steam，根据heroId，steamId，获取某一个用户的，从某场比赛开始（往前，更老的）的，所有该英雄的比赛id
