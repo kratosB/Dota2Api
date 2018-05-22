@@ -9,7 +9,18 @@ import java.util.List;
  */
 public interface IMatchService {
 
+    /**
+     * 根据steamId，循环heroIdList，获取该玩家的所有matchId，保存到本地库，等job定时更新matchDetail
+     * 
+     * @param steamId
+     *            用户id
+     */
     void updateMatchId(String steamId);
+
+    /**
+     * 供job调用，每次调用这个接口，会从matchHistory中获取一个updateTime是null的数据，获取matchId，然后从steam查询对应的比赛数据，更新到本地数据库
+     */
+    void updateMatchDetailJob();
 
     /**
      * 从steam，根据heroId，steamId，获取某一个用户的，从某场比赛开始（往前，更老的）的，所有该英雄的比赛id

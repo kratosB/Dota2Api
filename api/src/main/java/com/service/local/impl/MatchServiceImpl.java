@@ -19,6 +19,9 @@ import com.service.local.IMatchService;
 import com.service.steam.ISteamMatchService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.api.req.GetMatchHistoryReq;
@@ -41,8 +44,6 @@ public class MatchServiceImpl implements IMatchService {
     private MatchPlayerDao matchPlayerDao;
 
     private ISteamMatchService steamMatchServiceImpl;
-
-    private int loopSize = 100;
 
     @Autowired
     public MatchServiceImpl(IHeroService heroServiceImpl, MatchHistoryDao matchHistoryDao, MatchPlayerDao matchPlayerDao,
@@ -78,6 +79,7 @@ public class MatchServiceImpl implements IMatchService {
             matchHistoryList.add(matchHistory);
         });
         // 数据量太多的时候（几千条），一次性save怕出错
+        int loopSize = 100;
         while (matchHistoryList.size() > loopSize) {
             List<MatchHistory> saveList = new ArrayList<>(100);
             for (int i = 0; i < loopSize && i < matchHistoryList.size(); i++) {
@@ -87,6 +89,16 @@ public class MatchServiceImpl implements IMatchService {
             matchHistoryList.removeAll(saveList);
         }
         matchHistoryDao.save(matchHistoryList);
+    }
+
+    @Override
+    public void updateMatchDetailJob() {
+        Pageable pageable = new PageRequest(0, 1, null);
+        Page<MatchHistory> matchHistoryPage = matchHistoryDao.findByUpdatedTimeIsNullOrderByMatchIdDesc(pageable);
+        List<MatchHistory> matchHistoryList = matchHistoryPage.getContent();
+        matchHistoryList.forEach(matchHistory -> {
+            updateMatchDetailByMatchId(matchHistory.getMatchId());
+        });
     }
 
     @Override
@@ -197,7 +209,10 @@ public class MatchServiceImpl implements IMatchService {
         }
         matchHistory.setPicksBans(matchNode.findValue("picks_bans") == null ? null
                 : JsonMapper.nonDefaultMapper().toJson(matchNode.findValue("picks_bans")));
-        matchHistory.setCreatedTime(new Date());
+        if (matchHistory.getCreatedTime()==null) {
+            matchHistory.setCreatedTime(new Date());
+        }
+        matchHistory.setUpdatedTime(new Date());
         return matchHistory;
     }
 
@@ -224,15 +239,26 @@ public class MatchServiceImpl implements IMatchService {
         matchPlayer.setGoldPerMin(matchPlayerNode.findValue("gold_per_min").asInt());
         matchPlayer.setXpPerMin(matchPlayerNode.findValue("xp_per_min").asInt());
         matchPlayer.setLevel(matchPlayerNode.findValue("level").asInt());
-        matchPlayer.setHeroDamage(matchPlayerNode.findValue("hero_damage").asInt());
-        matchPlayer.setTowerDamage(matchPlayerNode.findValue("tower_damage").asInt());
-        matchPlayer.setHeroHealing(matchPlayerNode.findValue("hero_healing").asInt());
-        matchPlayer.setGold(matchPlayerNode.findValue("gold").asInt());
-        matchPlayer.setGoldSpent(matchPlayerNode.findValue("gold_spent").asInt());
-        matchPlayer.setScaledHeroDamage(matchPlayerNode.findValue("scaled_hero_damage").asInt());
-        matchPlayer.setScaledTowerDamage(matchPlayerNode.findValue("scaled_tower_damage").asInt());
-        matchPlayer.setScaledHeroHealing(matchPlayerNode.findValue("scaled_hero_healing").asInt());
-        matchPlayer.setAbilityUpgrades(JsonMapper.nonDefaultMapper().toJson(matchPlayerNode.findValue("ability_upgrades")));
+        matchPlayer.setHeroDamage(
+                matchPlayerNode.findValue("hero_damage") != null ? matchPlayerNode.findValue("hero_damage").asInt() : 0);
+        matchPlayer.setTowerDamage(
+                matchPlayerNode.findValue("tower_damage") != null ? matchPlayerNode.findValue("tower_damage").asInt() : 0);
+        matchPlayer.setHeroHealing(
+                matchPlayerNode.findValue("hero_healing") != null ? matchPlayerNode.findValue("hero_healing").asInt() : 0);
+        matchPlayer.setGold(matchPlayerNode.findValue("gold") != null ? matchPlayerNode.findValue("gold").asInt() : 0);
+        matchPlayer.setGoldSpent(
+                matchPlayerNode.findValue("gold_spent") != null ? matchPlayerNode.findValue("gold_spent").asInt() : 0);
+        matchPlayer.setScaledHeroDamage(
+                matchPlayerNode.findValue("scaled_hero_damage") != null ? matchPlayerNode.findValue("scaled_hero_damage").asInt()
+                        : 0);
+        matchPlayer.setScaledTowerDamage(
+                matchPlayerNode.findValue("scaled_tower_damage") != null ? matchPlayerNode.findValue("scaled_tower_damage").asInt()
+                        : 0);
+        matchPlayer.setScaledHeroHealing(
+                matchPlayerNode.findValue("scaled_hero_healing") != null ? matchPlayerNode.findValue("scaled_hero_healing").asInt()
+                        : 0);
+        matchPlayer.setAbilityUpgrades(JsonMapper.nonDefaultMapper().toJson(
+                matchPlayerNode.findValue("ability_upgrades") != null ? matchPlayerNode.findValue("ability_upgrades") : ""));
         return matchPlayer;
     }
 
