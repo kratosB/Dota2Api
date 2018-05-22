@@ -173,7 +173,7 @@ public class MatchServiceImpl implements IMatchService {
         matchHistory.setRadiantWin(StringUtils.equals(matchNode.findValue("radiant_win").asText(), "true") ? 1 : 0);
         matchHistory.setDuration(matchNode.findValue("duration").asInt());
         matchHistory.setPreGameDuration(matchNode.findValue("pre_game_duration").asInt());
-        matchHistory.setStartTime(matchNode.findValue("start_time").asLong());
+        matchHistory.setStartTime(new Date(matchNode.findValue("start_time").asLong() * 1000));
         matchHistory.setMatchSeqNum(matchNode.findValue("match_seq_num").asLong());
         matchHistory.setTowerStatusRadiant(matchNode.findValue("tower_status_radiant").asInt());
         matchHistory.setTowerStatusDire(matchNode.findValue("tower_status_dire").asInt());
@@ -209,7 +209,7 @@ public class MatchServiceImpl implements IMatchService {
         }
         matchHistory.setPicksBans(matchNode.findValue("picks_bans") == null ? null
                 : JsonMapper.nonDefaultMapper().toJson(matchNode.findValue("picks_bans")));
-        if (matchHistory.getCreatedTime()==null) {
+        if (matchHistory.getCreatedTime() == null) {
             matchHistory.setCreatedTime(new Date());
         }
         matchHistory.setUpdatedTime(new Date());

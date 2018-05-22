@@ -28,7 +28,8 @@ public class MatchHistory {
 
     private int preGameDuration;
 
-    private Long startTime;
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date startTime;
 
     private Long matchSeqNum;
 
