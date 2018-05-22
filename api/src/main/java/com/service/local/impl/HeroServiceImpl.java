@@ -29,8 +29,8 @@ public class HeroServiceImpl implements IHeroService {
     }
 
     @Override
-    public Hero findById(int id) {
-        return heroDao.findOne(id);
+    public Hero findById(int heroId) {
+        return heroDao.findOne(heroId);
     }
 
 }

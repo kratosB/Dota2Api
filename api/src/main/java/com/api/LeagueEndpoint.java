@@ -9,6 +9,8 @@ import com.service.local.IHeroService;
 import com.service.local.ILeagueService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -24,45 +26,59 @@ import java.util.List;
  */
 @RestController
 public class LeagueEndpoint {
-    
+
+    private Logger logger = LoggerFactory.getLogger(LeagueEndpoint.class);
+
     private ILeagueService leagueServiceImpl;
 
     private IHeroService heroServiceImpl;
-    
+
     public LeagueEndpoint(ILeagueService leagueServiceImpl, IHeroService heroServiceImpl) {
         this.leagueServiceImpl = leagueServiceImpl;
         this.heroServiceImpl = heroServiceImpl;
     }
 
-    @ApiOperation("列取所有赛事信息")
-    @GetMapping(value = "/api/league/listLeague")
+    @ApiOperation("从steam列取所有赛事信息")
+    @GetMapping(value = "/api/league/steam/listLeague")
     public LeaguesEntity listLeague() {
-        return leagueServiceImpl.listLeague();
+        logger.info("开始从steam列取所有赛事信息");
+        LeaguesEntity leaguesEntity = leagueServiceImpl.listLeague();
+        logger.info("结束从steam列取所有赛事信息");
+        return leaguesEntity;
     }
 
-    @ApiOperation("获取某一项赛事的信息")
-    @GetMapping(value = "/api/league/getLeague")
-    public MatchesEntity getLeague(@ApiParam(name = "id", required = true) @RequestParam(name = "id") int id) {
-        return leagueServiceImpl.getLeague(id);
+    @ApiOperation("从steam获取某一项赛事的信息")
+    @GetMapping(value = "/api/league/steam/getLeague")
+    public MatchesEntity getLeague(@ApiParam(name = "leagueId", required = true) @RequestParam(name = "leagueId") int leagueId) {
+        logger.info("开始从steam获取某一项赛事的信息，leagueId = {}", leagueId);
+        MatchesEntity matchesEntity = leagueServiceImpl.getLeague(leagueId);
+        logger.info("结束从steam获取某一项赛事的信息，matchesEntity = {}", matchesEntity);
+        return matchesEntity;
     }
 
-    @ApiOperation("列取某一项赛事赛事信息_正赛（从某场比赛开始）")
-    @GetMapping(value = "/api/league/getLeagueAfter")
+    @ApiOperation("从steam列取某一项赛事赛事信息_正赛（从某场比赛开始）")
+    @GetMapping(value = "/api/league/steam/getLeagueAfter")
     public List<Match> getLeagueAfter(@ApiParam(name = "leagueId", required = true) @RequestParam(name = "leagueId") int leagueId,
-                                      @ApiParam(name = "matchId", required = true) @RequestParam(name = "matchId") long matchId) {
-        return leagueServiceImpl.getLeagueAfter(leagueId, matchId);
+            @ApiParam(name = "matchId", required = true) @RequestParam(name = "matchId") long matchId) {
+        logger.info("开始从steam列取某一项赛事赛事信息_正赛（从某场比赛开始），leagueId = {}，matchId = {}", leagueId, matchId);
+        List<Match> matchList = leagueServiceImpl.getLeagueAfter(leagueId, matchId);
+        logger.info("结束从steam列取某一项赛事赛事信息_正赛（从某场比赛开始），matchList.size = {}", matchList.size());
+        return matchList;
     }
 
-    @ApiOperation("获取赛事信息_正赛（从某场比赛开始）ban pick数据")
-    @GetMapping(value = "/api/league/getBanPick")
+    @ApiOperation("从steam获取赛事信息_正赛（从某场比赛开始）ban pick数据")
+    @GetMapping(value = "/api/league/steam/getBanPick")
     public List<BanPickDetails.BanPickHero> getBanPick(
             @ApiParam(name = "leagueId", required = true) @RequestParam(name = "leagueId") int leagueId,
             @ApiParam(name = "matchId", required = true) @RequestParam(name = "matchId") long matchId) {
+        logger.info("开始从steam获取赛事信息_正赛（从某场比赛开始）ban pick数据，leagueId = {}，matchId = {}", leagueId, matchId);
         BanPickDetails banPickDetails = leagueServiceImpl.getBanPick(leagueId, matchId);
         List<Hero> heroList = heroServiceImpl.listAll();
         banPickDetails.setHeroName(heroList);
         getWinRate(banPickDetails);
-        return sort(banPickDetails);
+        List<BanPickDetails.BanPickHero> banPickHeroList = sort(banPickDetails);
+        logger.info("结束从steam获取赛事信息_正赛（从某场比赛开始）ban pick数据，leagueId = {}，matchId = {}", leagueId, matchId);
+        return banPickHeroList;
     }
 
     private List<BanPickDetails.BanPickHero> sort(BanPickDetails banPickDetails) {

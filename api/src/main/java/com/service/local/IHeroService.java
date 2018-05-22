@@ -21,10 +21,10 @@ public interface IHeroService {
     /**
      * 从数据库中，根据heroId，获取对应的hero信息
      * 
-     * @param id
+     * @param heroId
      *            heroId
      * @return 对应的hero信息
      */
-    Hero findById(int id);
+    Hero findById(int heroId);
 
 }

@@ -29,8 +29,8 @@ public class ItemServiceImpl implements IItemService {
     }
 
     @Override
-    public Item findById(int id) {
-        return itemDao.findOne(id);
+    public Item findById(int itemId) {
+        return itemDao.findOne(itemId);
     }
 
 }

@@ -21,10 +21,10 @@ public interface IItemService {
     /**
      * 从数据库中，根据itemId，获取对应的hero信息
      *
-     * @param id
+     * @param itemId
      *            itemId
      * @return 对应的item信息
      */
-    Item findById(int id);
+    Item findById(int itemId);
 
 }

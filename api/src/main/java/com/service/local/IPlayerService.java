@@ -1,5 +1,8 @@
 package com.service.local;
 
+import com.api.req.GetPlayerInfoReq;
+import com.dao.entity.Player;
+
 import java.util.List;
 
 /**
@@ -23,4 +26,10 @@ public interface IPlayerService {
      */
     public void updateFriendDataBySteamId(String steamId);
 
+    /**
+     * 查找选手
+     * @param getPlayerInfoReq 查询参数
+     * @return 选手信息
+     */
+    List<Player> getPlayerInfo(GetPlayerInfoReq getPlayerInfoReq);
 }

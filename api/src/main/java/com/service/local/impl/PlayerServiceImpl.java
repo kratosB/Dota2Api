@@ -3,11 +3,13 @@ package com.service.local.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.api.req.GetPlayerInfoReq;
 import com.config.Configuration;
 import com.dao.RelationDao;
 import com.dao.entity.Relation;
 import com.service.local.IPlayerService;
 import com.util.SteamIdConverter;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -16,6 +18,8 @@ import com.dao.PlayerDao;
 import com.dao.entity.Player;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.util.JsonMapper;
+
+import javax.persistence.criteria.Predicate;
 
 /**
  * Created on 2018/3/28.
@@ -58,9 +62,34 @@ public class PlayerServiceImpl implements IPlayerService {
         updatePlayerData(steamIdsBuilder.substring(0, steamIdsBuilder.length() - 1));
     }
 
+    @Override
+    public List<Player> getPlayerInfo(GetPlayerInfoReq getPlayerInfoReq) {
+        String steamId = getPlayerInfoReq.getSteamId();
+        String dotaId = getPlayerInfoReq.getDotaId();
+        String playerName = getPlayerInfoReq.getPlayerName();
+        List<Player> playerList;
+        if (StringUtils.isBlank(steamId) && StringUtils.isBlank(dotaId) && StringUtils.isBlank(playerName)) {
+            playerList = playerDao.findAll();
+        } else {
+            playerList = playerDao.findAll(((root, query, cb) -> {
+                List<Predicate> predicates = new ArrayList<>(3);
+                if (StringUtils.isNotBlank(steamId)) {
+                    predicates.add(cb.equal(root.get("steamid"), steamId));
+                }
+                if (StringUtils.isNotBlank(dotaId)) {
+                    predicates.add(cb.equal(root.get("dotaAccountId"), dotaId));
+                }
+                if (StringUtils.isNotBlank(playerName)) {
+                    predicates.add(cb.like(root.get("personaname"), "%" + playerName + "%"));
+                }
+                return cb.and(predicates.toArray(new Predicate[predicates.size()]));
+            }));
+        }
+        return playerList;
+    }
+
     public void updateRelation(String steamId, List<String> friendIdList) {
         List<Relation> relationList = relationDao.findBySteamIdAndAndFriendIdIn(steamId, friendIdList);
-        friendIdList.removeAll(relationList);
         // TODO
     }
 

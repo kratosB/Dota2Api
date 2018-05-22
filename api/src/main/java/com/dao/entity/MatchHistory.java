@@ -5,6 +5,9 @@ import lombok.Data;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import java.util.Date;
 
 /**
  * Created on 2018/5/11.
@@ -82,5 +85,11 @@ public class MatchHistory {
     private Long direCaptain;
 
     private String picksBans;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date createdTime;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date updatedTime;
 
 }

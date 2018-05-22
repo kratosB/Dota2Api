@@ -2,6 +2,7 @@ package com.service.local.impl;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -59,7 +60,7 @@ public class MatchServiceImpl implements IMatchService {
             List<Long> heroMatchIdList = getMatchIdBySteamIdAndHeroId(steamId, heroId, null);
             matchIdList.addAll(heroMatchIdList);
             try {
-                Thread.sleep(10000);
+                Thread.sleep(1000);
             } catch (Exception e) {
                 System.out.println(e.getMessage());
             }
@@ -178,6 +179,7 @@ public class MatchServiceImpl implements IMatchService {
         }
         matchHistory.setPicksBans(matchNode.findValue("picks_bans") == null ? null
                 : JsonMapper.nonDefaultMapper().toJson(matchNode.findValue("picks_bans")));
+        matchHistory.setCreatedTime(new Date());
         return matchHistory;
     }
 
