@@ -1,0 +1,271 @@
+
+2018-05-23 05:14:27.199 ERROR 12846 --- [pool-1-thread-1] o.s.s.s.TaskUtils$LoggingErrorHandler    : Unexpected error occurred in scheduled task.
+
+org.springframework.web.client.HttpServerErrorException: 500 Internal Server Error
+	at org.springframework.web.client.DefaultResponseErrorHandler.handleError(DefaultResponseErrorHandler.java:94) ~[spring-web-4.3.7.RELEASE.jar:4.3.7.RELEASE]
+	at org.springframework.web.client.RestTemplate.handleResponse(RestTemplate.java:700) ~[spring-web-4.3.7.RELEASE.jar:4.3.7.RELEASE]
+	at org.springframework.web.client.RestTemplate.doExecute(RestTemplate.java:653) ~[spring-web-4.3.7.RELEASE.jar:4.3.7.RELEASE]
+	at org.springframework.web.client.RestTemplate.execute(RestTemplate.java:613) ~[spring-web-4.3.7.RELEASE.jar:4.3.7.RELEASE]
+	at org.springframework.web.client.RestTemplate.getForObject(RestTemplate.java:287) ~[spring-web-4.3.7.RELEASE.jar:4.3.7.RELEASE]
+	at com.service.steam.impl.SteamMatchServiceImpl.getMatchDetailByMatchId(SteamMatchServiceImpl.java:73) ~[classes/:1.1-SNAPSHOT]
+	at com.service.local.impl.MatchServiceImpl.updateMatchDetailByMatchId(MatchServiceImpl.java:142) ~[classes/:1.1-SNAPSHOT]
+	at com.service.local.impl.MatchServiceImpl.lambda$updateMatchDetailJob$5(MatchServiceImpl.java:100) ~[classes/:1.1-SNAPSHOT]
+	at java.util.ArrayList.forEach(ArrayList.java:1257) ~[na:1.8.0_161]
+	at java.util.Collections$UnmodifiableCollection.forEach(Collections.java:1080) ~[na:1.8.0_161]
+	at com.service.local.impl.MatchServiceImpl.updateMatchDetailJob(MatchServiceImpl.java:99) ~[classes/:1.1-SNAPSHOT]
+	at com.job.Dota2Job.updateMatchDetail(Dota2Job.java:29) ~[classes/:1.1-SNAPSHOT]
+	at sun.reflect.GeneratedMethodAccessor149.invoke(Unknown Source) ~[na:na]
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43) ~[na:1.8.0_161]
+	at java.lang.reflect.Method.invoke(Method.java:498) ~[na:1.8.0_161]
+	at org.springframework.scheduling.support.ScheduledMethodRunnable.run(ScheduledMethodRunnable.java:65) ~[spring-context-4.3.7.RELEASE.jar:4.3.7.RELEASE]
+	at org.springframework.scheduling.support.DelegatingErrorHandlingRunnable.run(DelegatingErrorHandlingRunnable.java:54) ~[spring-context-4.3.7.RELEASE.jar:4.3.7.RELEASE]
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511) [na:1.8.0_161]
+	at java.util.concurrent.FutureTask.runAndReset(FutureTask.java:308) [na:1.8.0_161]
+	at java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.access$301(ScheduledThreadPoolExecutor.java:180) [na:1.8.0_161]
+	at java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:294) [na:1.8.0_161]
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149) [na:1.8.0_161]
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624) [na:1.8.0_161]
+	at java.lang.Thread.run(Thread.java:748) [na:1.8.0_161]
+
+2018-05-23 05:14:47.736 ERROR 12846 --- [pool-1-thread-1] o.s.s.s.TaskUtils$LoggingErrorHandler    : Unexpected error occurred in scheduled task.
+
+org.springframework.web.client.HttpServerErrorException: 500 Internal Server Error
+	at org.springframework.web.client.DefaultResponseErrorHandler.handleError(DefaultResponseErrorHandler.java:94) ~[spring-web-4.3.7.RELEASE.jar:4.3.7.RELEASE]
+	at org.springframework.web.client.RestTemplate.handleResponse(RestTemplate.java:700) ~[spring-web-4.3.7.RELEASE.jar:4.3.7.RELEASE]
+	at org.springframework.web.client.RestTemplate.doExecute(RestTemplate.java:653) ~[spring-web-4.3.7.RELEASE.jar:4.3.7.RELEASE]
+	at org.springframework.web.client.RestTemplate.execute(RestTemplate.java:613) ~[spring-web-4.3.7.RELEASE.jar:4.3.7.RELEASE]
+	at org.springframework.web.client.RestTemplate.getForObject(RestTemplate.java:287) ~[spring-web-4.3.7.RELEASE.jar:4.3.7.RELEASE]
+	at com.service.steam.impl.SteamMatchServiceImpl.getMatchDetailByMatchId(SteamMatchServiceImpl.java:73) ~[classes/:1.1-SNAPSHOT]
+	at com.service.local.impl.MatchServiceImpl.updateMatchDetailByMatchId(MatchServiceImpl.java:142) ~[classes/:1.1-SNAPSHOT]
+	at com.service.local.impl.MatchServiceImpl.lambda$updateMatchDetailJob$5(MatchServiceImpl.java:100) ~[classes/:1.1-SNAPSHOT]
+	at java.util.ArrayList.forEach(ArrayList.java:1257) ~[na:1.8.0_161]
+	at java.util.Collections$UnmodifiableCollection.forEach(Collections.java:1080) ~[na:1.8.0_161]
+	at com.service.local.impl.MatchServiceImpl.updateMatchDetailJob(MatchServiceImpl.java:99) ~[classes/:1.1-SNAPSHOT]
+	at com.job.Dota2Job.updateMatchDetail(Dota2Job.java:29) ~[classes/:1.1-SNAPSHOT]
+	at sun.reflect.GeneratedMethodAccessor149.invoke(Unknown Source) ~[na:na]
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43) ~[na:1.8.0_161]
+	at java.lang.reflect.Method.invoke(Method.java:498) ~[na:1.8.0_161]
+	at org.springframework.scheduling.support.ScheduledMethodRunnable.run(ScheduledMethodRunnable.java:65) ~[spring-context-4.3.7.RELEASE.jar:4.3.7.RELEASE]
+	at org.springframework.scheduling.support.DelegatingErrorHandlingRunnable.run(DelegatingErrorHandlingRunnable.java:54) ~[spring-context-4.3.7.RELEASE.jar:4.3.7.RELEASE]
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511) [na:1.8.0_161]
+	at java.util.concurrent.FutureTask.runAndReset(FutureTask.java:308) [na:1.8.0_161]
+	at java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.access$301(ScheduledThreadPoolExecutor.java:180) [na:1.8.0_161]
+	at java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:294) [na:1.8.0_161]
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149) [na:1.8.0_161]
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624) [na:1.8.0_161]
+	at java.lang.Thread.run(Thread.java:748) [na:1.8.0_161]
+
+2018-05-23 05:25:17.726 ERROR 12846 --- [pool-1-thread-1] o.s.s.s.TaskUtils$LoggingErrorHandler    : Unexpected error occurred in scheduled task.
+
+org.springframework.web.client.HttpServerErrorException: 500 Internal Server Error
+	at org.springframework.web.client.DefaultResponseErrorHandler.handleError(DefaultResponseErrorHandler.java:94) ~[spring-web-4.3.7.RELEASE.jar:4.3.7.RELEASE]
+	at org.springframework.web.client.RestTemplate.handleResponse(RestTemplate.java:700) ~[spring-web-4.3.7.RELEASE.jar:4.3.7.RELEASE]
+	at org.springframework.web.client.RestTemplate.doExecute(RestTemplate.java:653) ~[spring-web-4.3.7.RELEASE.jar:4.3.7.RELEASE]
+	at org.springframework.web.client.RestTemplate.execute(RestTemplate.java:613) ~[spring-web-4.3.7.RELEASE.jar:4.3.7.RELEASE]
+	at org.springframework.web.client.RestTemplate.getForObject(RestTemplate.java:287) ~[spring-web-4.3.7.RELEASE.jar:4.3.7.RELEASE]
+	at com.service.steam.impl.SteamMatchServiceImpl.getMatchDetailByMatchId(SteamMatchServiceImpl.java:73) ~[classes/:1.1-SNAPSHOT]
+	at com.service.local.impl.MatchServiceImpl.updateMatchDetailByMatchId(MatchServiceImpl.java:142) ~[classes/:1.1-SNAPSHOT]
+	at com.service.local.impl.MatchServiceImpl.lambda$updateMatchDetailJob$5(MatchServiceImpl.java:100) ~[classes/:1.1-SNAPSHOT]
+	at java.util.ArrayList.forEach(ArrayList.java:1257) ~[na:1.8.0_161]
+	at java.util.Collections$UnmodifiableCollection.forEach(Collections.java:1080) ~[na:1.8.0_161]
+	at com.service.local.impl.MatchServiceImpl.updateMatchDetailJob(MatchServiceImpl.java:99) ~[classes/:1.1-SNAPSHOT]
+	at com.job.Dota2Job.updateMatchDetail(Dota2Job.java:29) ~[classes/:1.1-SNAPSHOT]
+	at sun.reflect.GeneratedMethodAccessor149.invoke(Unknown Source) ~[na:na]
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43) ~[na:1.8.0_161]
+	at java.lang.reflect.Method.invoke(Method.java:498) ~[na:1.8.0_161]
+	at org.springframework.scheduling.support.ScheduledMethodRunnable.run(ScheduledMethodRunnable.java:65) ~[spring-context-4.3.7.RELEASE.jar:4.3.7.RELEASE]
+	at org.springframework.scheduling.support.DelegatingErrorHandlingRunnable.run(DelegatingErrorHandlingRunnable.java:54) ~[spring-context-4.3.7.RELEASE.jar:4.3.7.RELEASE]
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511) [na:1.8.0_161]
+	at java.util.concurrent.FutureTask.runAndReset(FutureTask.java:308) [na:1.8.0_161]
+	at java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.access$301(ScheduledThreadPoolExecutor.java:180) [na:1.8.0_161]
+	at java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:294) [na:1.8.0_161]
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149) [na:1.8.0_161]
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624) [na:1.8.0_161]
+	at java.lang.Thread.run(Thread.java:748) [na:1.8.0_161]
+
+2018-05-23 05:25:47.766 ERROR 12846 --- [pool-1-thread-1] o.s.s.s.TaskUtils$LoggingErrorHandler    : Unexpected error occurred in scheduled task.
+
+org.springframework.web.client.HttpServerErrorException: 500 Internal Server Error
+	at org.springframework.web.client.DefaultResponseErrorHandler.handleError(DefaultResponseErrorHandler.java:94) ~[spring-web-4.3.7.RELEASE.jar:4.3.7.RELEASE]
+	at org.springframework.web.client.RestTemplate.handleResponse(RestTemplate.java:700) ~[spring-web-4.3.7.RELEASE.jar:4.3.7.RELEASE]
+	at org.springframework.web.client.RestTemplate.doExecute(RestTemplate.java:653) ~[spring-web-4.3.7.RELEASE.jar:4.3.7.RELEASE]
+	at org.springframework.web.client.RestTemplate.execute(RestTemplate.java:613) ~[spring-web-4.3.7.RELEASE.jar:4.3.7.RELEASE]
+	at org.springframework.web.client.RestTemplate.getForObject(RestTemplate.java:287) ~[spring-web-4.3.7.RELEASE.jar:4.3.7.RELEASE]
+	at com.service.steam.impl.SteamMatchServiceImpl.getMatchDetailByMatchId(SteamMatchServiceImpl.java:73) ~[classes/:1.1-SNAPSHOT]
+	at com.service.local.impl.MatchServiceImpl.updateMatchDetailByMatchId(MatchServiceImpl.java:142) ~[classes/:1.1-SNAPSHOT]
+	at com.service.local.impl.MatchServiceImpl.lambda$updateMatchDetailJob$5(MatchServiceImpl.java:100) ~[classes/:1.1-SNAPSHOT]
+	at java.util.ArrayList.forEach(ArrayList.java:1257) ~[na:1.8.0_161]
+	at java.util.Collections$UnmodifiableCollection.forEach(Collections.java:1080) ~[na:1.8.0_161]
+	at com.service.local.impl.MatchServiceImpl.updateMatchDetailJob(MatchServiceImpl.java:99) ~[classes/:1.1-SNAPSHOT]
+	at com.job.Dota2Job.updateMatchDetail(Dota2Job.java:29) ~[classes/:1.1-SNAPSHOT]
+	at sun.reflect.GeneratedMethodAccessor149.invoke(Unknown Source) ~[na:na]
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43) ~[na:1.8.0_161]
+	at java.lang.reflect.Method.invoke(Method.java:498) ~[na:1.8.0_161]
+	at org.springframework.scheduling.support.ScheduledMethodRunnable.run(ScheduledMethodRunnable.java:65) ~[spring-context-4.3.7.RELEASE.jar:4.3.7.RELEASE]
+	at org.springframework.scheduling.support.DelegatingErrorHandlingRunnable.run(DelegatingErrorHandlingRunnable.java:54) ~[spring-context-4.3.7.RELEASE.jar:4.3.7.RELEASE]
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511) [na:1.8.0_161]
+	at java.util.concurrent.FutureTask.runAndReset(FutureTask.java:308) [na:1.8.0_161]
+	at java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.access$301(ScheduledThreadPoolExecutor.java:180) [na:1.8.0_161]
+	at java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:294) [na:1.8.0_161]
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149) [na:1.8.0_161]
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624) [na:1.8.0_161]
+	at java.lang.Thread.run(Thread.java:748) [na:1.8.0_161]
+
+
+2018-05-23 05:59:17.793 ERROR 12846 --- [pool-1-thread-1] o.s.s.s.TaskUtils$LoggingErrorHandler    : Unexpected error occurred in scheduled task.
+
+org.springframework.web.client.HttpServerErrorException: 504 Gateway Time-out
+	at org.springframework.web.client.DefaultResponseErrorHandler.handleError(DefaultResponseErrorHandler.java:94) ~[spring-web-4.3.7.RELEASE.jar:4.3.7.RELEASE]
+	at org.springframework.web.client.RestTemplate.handleResponse(RestTemplate.java:700) ~[spring-web-4.3.7.RELEASE.jar:4.3.7.RELEASE]
+	at org.springframework.web.client.RestTemplate.doExecute(RestTemplate.java:653) ~[spring-web-4.3.7.RELEASE.jar:4.3.7.RELEASE]
+	at org.springframework.web.client.RestTemplate.execute(RestTemplate.java:613) ~[spring-web-4.3.7.RELEASE.jar:4.3.7.RELEASE]
+	at org.springframework.web.client.RestTemplate.getForObject(RestTemplate.java:287) ~[spring-web-4.3.7.RELEASE.jar:4.3.7.RELEASE]
+	at com.service.steam.impl.SteamMatchServiceImpl.getMatchDetailByMatchId(SteamMatchServiceImpl.java:73) ~[classes/:1.1-SNAPSHOT]
+	at com.service.local.impl.MatchServiceImpl.updateMatchDetailByMatchId(MatchServiceImpl.java:142) ~[classes/:1.1-SNAPSHOT]
+	at com.service.local.impl.MatchServiceImpl.lambda$updateMatchDetailJob$5(MatchServiceImpl.java:100) ~[classes/:1.1-SNAPSHOT]
+	at java.util.ArrayList.forEach(ArrayList.java:1257) ~[na:1.8.0_161]
+	at java.util.Collections$UnmodifiableCollection.forEach(Collections.java:1080) ~[na:1.8.0_161]
+	at com.service.local.impl.MatchServiceImpl.updateMatchDetailJob(MatchServiceImpl.java:99) ~[classes/:1.1-SNAPSHOT]
+	at com.job.Dota2Job.updateMatchDetail(Dota2Job.java:29) ~[classes/:1.1-SNAPSHOT]
+	at sun.reflect.GeneratedMethodAccessor149.invoke(Unknown Source) ~[na:na]
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43) ~[na:1.8.0_161]
+	at java.lang.reflect.Method.invoke(Method.java:498) ~[na:1.8.0_161]
+	at org.springframework.scheduling.support.ScheduledMethodRunnable.run(ScheduledMethodRunnable.java:65) ~[spring-context-4.3.7.RELEASE.jar:4.3.7.RELEASE]
+	at org.springframework.scheduling.support.DelegatingErrorHandlingRunnable.run(DelegatingErrorHandlingRunnable.java:54) ~[spring-context-4.3.7.RELEASE.jar:4.3.7.RELEASE]
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511) [na:1.8.0_161]
+	at java.util.concurrent.FutureTask.runAndReset(FutureTask.java:308) [na:1.8.0_161]
+	at java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.access$301(ScheduledThreadPoolExecutor.java:180) [na:1.8.0_161]
+	at java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:294) [na:1.8.0_161]
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149) [na:1.8.0_161]
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624) [na:1.8.0_161]
+	at java.lang.Thread.run(Thread.java:748) [na:1.8.0_161]
+
+
+
+2018-05-23 07:15:17.743 ERROR 12846 --- [pool-1-thread-1] o.s.s.s.TaskUtils$LoggingErrorHandler    : Unexpected error occurred in scheduled task.
+
+org.springframework.web.client.HttpServerErrorException: 500 Internal Server Error
+	at org.springframework.web.client.DefaultResponseErrorHandler.handleError(DefaultResponseErrorHandler.java:94) ~[spring-web-4.3.7.RELEASE.jar:4.3.7.RELEASE]
+	at org.springframework.web.client.RestTemplate.handleResponse(RestTemplate.java:700) ~[spring-web-4.3.7.RELEASE.jar:4.3.7.RELEASE]
+	at org.springframework.web.client.RestTemplate.doExecute(RestTemplate.java:653) ~[spring-web-4.3.7.RELEASE.jar:4.3.7.RELEASE]
+	at org.springframework.web.client.RestTemplate.execute(RestTemplate.java:613) ~[spring-web-4.3.7.RELEASE.jar:4.3.7.RELEASE]
+	at org.springframework.web.client.RestTemplate.getForObject(RestTemplate.java:287) ~[spring-web-4.3.7.RELEASE.jar:4.3.7.RELEASE]
+	at com.service.steam.impl.SteamMatchServiceImpl.getMatchDetailByMatchId(SteamMatchServiceImpl.java:73) ~[classes/:1.1-SNAPSHOT]
+	at com.service.local.impl.MatchServiceImpl.updateMatchDetailByMatchId(MatchServiceImpl.java:142) ~[classes/:1.1-SNAPSHOT]
+	at com.service.local.impl.MatchServiceImpl.lambda$updateMatchDetailJob$5(MatchServiceImpl.java:100) ~[classes/:1.1-SNAPSHOT]
+	at java.util.ArrayList.forEach(ArrayList.java:1257) ~[na:1.8.0_161]
+	at java.util.Collections$UnmodifiableCollection.forEach(Collections.java:1080) ~[na:1.8.0_161]
+	at com.service.local.impl.MatchServiceImpl.updateMatchDetailJob(MatchServiceImpl.java:99) ~[classes/:1.1-SNAPSHOT]
+	at com.job.Dota2Job.updateMatchDetail(Dota2Job.java:29) ~[classes/:1.1-SNAPSHOT]
+	at sun.reflect.GeneratedMethodAccessor149.invoke(Unknown Source) ~[na:na]
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43) ~[na:1.8.0_161]
+	at java.lang.reflect.Method.invoke(Method.java:498) ~[na:1.8.0_161]
+	at org.springframework.scheduling.support.ScheduledMethodRunnable.run(ScheduledMethodRunnable.java:65) ~[spring-context-4.3.7.RELEASE.jar:4.3.7.RELEASE]
+	at org.springframework.scheduling.support.DelegatingErrorHandlingRunnable.run(DelegatingErrorHandlingRunnable.java:54) ~[spring-context-4.3.7.RELEASE.jar:4.3.7.RELEASE]
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511) [na:1.8.0_161]
+	at java.util.concurrent.FutureTask.runAndReset(FutureTask.java:308) [na:1.8.0_161]
+	at java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.access$301(ScheduledThreadPoolExecutor.java:180) [na:1.8.0_161]
+	at java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:294) [na:1.8.0_161]
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149) [na:1.8.0_161]
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624) [na:1.8.0_161]
+	at java.lang.Thread.run(Thread.java:748) [na:1.8.0_161]
+
+2018-05-23 07:15:47.683 ERROR 12846 --- [pool-1-thread-1] o.s.s.s.TaskUtils$LoggingErrorHandler    : Unexpected error occurred in scheduled task.
+
+org.springframework.web.client.HttpServerErrorException: 500 Internal Server Error
+	at org.springframework.web.client.DefaultResponseErrorHandler.handleError(DefaultResponseErrorHandler.java:94) ~[spring-web-4.3.7.RELEASE.jar:4.3.7.RELEASE]
+	at org.springframework.web.client.RestTemplate.handleResponse(RestTemplate.java:700) ~[spring-web-4.3.7.RELEASE.jar:4.3.7.RELEASE]
+	at org.springframework.web.client.RestTemplate.doExecute(RestTemplate.java:653) ~[spring-web-4.3.7.RELEASE.jar:4.3.7.RELEASE]
+	at org.springframework.web.client.RestTemplate.execute(RestTemplate.java:613) ~[spring-web-4.3.7.RELEASE.jar:4.3.7.RELEASE]
+	at org.springframework.web.client.RestTemplate.getForObject(RestTemplate.java:287) ~[spring-web-4.3.7.RELEASE.jar:4.3.7.RELEASE]
+	at com.service.steam.impl.SteamMatchServiceImpl.getMatchDetailByMatchId(SteamMatchServiceImpl.java:73) ~[classes/:1.1-SNAPSHOT]
+	at com.service.local.impl.MatchServiceImpl.updateMatchDetailByMatchId(MatchServiceImpl.java:142) ~[classes/:1.1-SNAPSHOT]
+	at com.service.local.impl.MatchServiceImpl.lambda$updateMatchDetailJob$5(MatchServiceImpl.java:100) ~[classes/:1.1-SNAPSHOT]
+	at java.util.ArrayList.forEach(ArrayList.java:1257) ~[na:1.8.0_161]
+	at java.util.Collections$UnmodifiableCollection.forEach(Collections.java:1080) ~[na:1.8.0_161]
+	at com.service.local.impl.MatchServiceImpl.updateMatchDetailJob(MatchServiceImpl.java:99) ~[classes/:1.1-SNAPSHOT]
+	at com.job.Dota2Job.updateMatchDetail(Dota2Job.java:29) ~[classes/:1.1-SNAPSHOT]
+	at sun.reflect.GeneratedMethodAccessor149.invoke(Unknown Source) ~[na:na]
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43) ~[na:1.8.0_161]
+	at java.lang.reflect.Method.invoke(Method.java:498) ~[na:1.8.0_161]
+	at org.springframework.scheduling.support.ScheduledMethodRunnable.run(ScheduledMethodRunnable.java:65) ~[spring-context-4.3.7.RELEASE.jar:4.3.7.RELEASE]
+	at org.springframework.scheduling.support.DelegatingErrorHandlingRunnable.run(DelegatingErrorHandlingRunnable.java:54) ~[spring-context-4.3.7.RELEASE.jar:4.3.7.RELEASE]
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511) [na:1.8.0_161]
+	at java.util.concurrent.FutureTask.runAndReset(FutureTask.java:308) [na:1.8.0_161]
+	at java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.access$301(ScheduledThreadPoolExecutor.java:180) [na:1.8.0_161]
+	at java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:294) [na:1.8.0_161]
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149) [na:1.8.0_161]
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624) [na:1.8.0_161]
+	at java.lang.Thread.run(Thread.java:748) [na:1.8.0_161]
+
+
+
+2018-05-23 10:38:17.873 ERROR 12846 --- [pool-1-thread-1] o.s.s.s.TaskUtils$LoggingErrorHandler    : Unexpected error occurred in scheduled task.
+
+java.lang.NullPointerException: null
+
+2018-05-23 10:38:47.862 ERROR 12846 --- [pool-1-thread-1] o.s.s.s.TaskUtils$LoggingErrorHandler    : Unexpected error occurred in scheduled task.
+
+java.lang.NullPointerException: null
+
+2018-05-23 10:39:17.819 ERROR 12846 --- [pool-1-thread-1] o.s.s.s.TaskUtils$LoggingErrorHandler    : Unexpected error occurred in scheduled task.
+
+java.lang.NullPointerException: null
+
+2018-05-23 10:39:47.764 ERROR 12846 --- [pool-1-thread-1] o.s.s.s.TaskUtils$LoggingErrorHandler    : Unexpected error occurred in scheduled task.
+
+java.lang.NullPointerException: null
+
+2018-05-23 10:40:17.785 ERROR 12846 --- [pool-1-thread-1] o.s.s.s.TaskUtils$LoggingErrorHandler    : Unexpected error occurred in scheduled task.
+
+java.lang.NullPointerException: null
+
+2018-05-23 10:40:47.848 ERROR 12846 --- [pool-1-thread-1] o.s.s.s.TaskUtils$LoggingErrorHandler    : Unexpected error occurred in scheduled task.
+
+java.lang.NullPointerException: null
+
+2018-05-23 10:41:17.787 ERROR 12846 --- [pool-1-thread-1] o.s.s.s.TaskUtils$LoggingErrorHandler    : Unexpected error occurred in scheduled task.
+
+java.lang.NullPointerException: null
+
+2018-05-23 10:41:47.772 ERROR 12846 --- [pool-1-thread-1] o.s.s.s.TaskUtils$LoggingErrorHandler    : Unexpected error occurred in scheduled task.
+
+java.lang.NullPointerException: null
+
+2018-05-23 10:42:17.779 ERROR 12846 --- [pool-1-thread-1] o.s.s.s.TaskUtils$LoggingErrorHandler    : Unexpected error occurred in scheduled task.
+
+java.lang.NullPointerException: null
+
+2018-05-23 10:42:47.825 ERROR 12846 --- [pool-1-thread-1] o.s.s.s.TaskUtils$LoggingErrorHandler    : Unexpected error occurred in scheduled task.
+
+java.lang.NullPointerException: null
+
+2018-05-23 10:43:17.881 ERROR 12846 --- [pool-1-thread-1] o.s.s.s.TaskUtils$LoggingErrorHandler    : Unexpected error occurred in scheduled task.
+
+java.lang.NullPointerException: null
+
+2018-05-23 10:43:47.835 ERROR 12846 --- [pool-1-thread-1] o.s.s.s.TaskUtils$LoggingErrorHandler    : Unexpected error occurred in scheduled task.
+
+java.lang.NullPointerException: null
+
+2018-05-23 10:44:17.804 ERROR 12846 --- [pool-1-thread-1] o.s.s.s.TaskUtils$LoggingErrorHandler    : Unexpected error occurred in scheduled task.
+
+java.lang.NullPointerException: null
+
+2018-05-23 10:44:47.820 ERROR 12846 --- [pool-1-thread-1] o.s.s.s.TaskUtils$LoggingErrorHandler    : Unexpected error occurred in scheduled task.
+
+java.lang.NullPointerException: null
+
+2018-05-23 10:45:17.805 ERROR 12846 --- [pool-1-thread-1] o.s.s.s.TaskUtils$LoggingErrorHandler    : Unexpected error occurred in scheduled task.
+
+java.lang.NullPointerException: null
+
+2018-05-23 10:45:47.839 ERROR 12846 --- [pool-1-thread-1] o.s.s.s.TaskUtils$LoggingErrorHandler    : Unexpected error occurred in scheduled task.
+
+java.lang.NullPointerException: null
+
+2018-05-23 10:46:17.829 ERROR 12846 --- [pool-1-thread-1] o.s.s.s.TaskUtils$LoggingErrorHandler    : Unexpected error occurred in scheduled task.
+
+java.lang.NullPointerException: null
+
+2018-05-23 13:14:18.140 ERROR 12846 --- [pool-1-thread-1] o.s.s.s.TaskUtils$LoggingErrorHandler    : Unexpected error occurred in scheduled task.
