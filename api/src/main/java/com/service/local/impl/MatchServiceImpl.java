@@ -146,8 +146,13 @@ public class MatchServiceImpl implements IMatchService {
         List<MatchPlayer> matchPlayerList = matchPlayerDao.findByMatchId(matchId);
         Map<Long, Long> map = new HashMap<>(10);
         if (matchPlayerList.size() != 0) {
-            //TODO 匿名玩家会出错
-            map.putAll(matchPlayerList.stream().collect(Collectors.toMap(MatchPlayer::getAccountId, MatchPlayer::getId)));
+            int size = 10;
+            if (matchPlayerList.stream().map(MatchPlayer::getAccountId).distinct().collect(Collectors.toList()).size() < size) {
+                // 说明其中有account_重复，应该是匿名玩家 或 合作对抗AI
+                matchPlayerDao.delete(matchPlayerList);
+            } else {
+                map.putAll(matchPlayerList.stream().collect(Collectors.toMap(MatchPlayer::getAccountId, MatchPlayer::getId)));
+            }
         }
         JsonNode playersNode = jsonNode.findPath("players");
         Iterator<JsonNode> playerNodeList = playersNode.iterator();

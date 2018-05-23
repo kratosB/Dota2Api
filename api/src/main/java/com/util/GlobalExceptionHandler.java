@@ -7,8 +7,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 /**
  * Created on 2018/5/23.
  * @author zhiqiang bao
+ * 暂时没有启动
  */
-@ControllerAdvice
+//@ControllerAdvice
 public class GlobalExceptionHandler {
 
     @ExceptionHandler
