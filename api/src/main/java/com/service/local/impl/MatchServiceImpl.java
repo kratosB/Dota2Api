@@ -96,9 +96,7 @@ public class MatchServiceImpl implements IMatchService {
         Pageable pageable = new PageRequest(0, 1, null);
         Page<MatchHistory> matchHistoryPage = matchHistoryDao.findByUpdatedTimeIsNullOrderByMatchIdDesc(pageable);
         List<MatchHistory> matchHistoryList = matchHistoryPage.getContent();
-        matchHistoryList.forEach(matchHistory -> {
-            updateMatchDetailByMatchId(matchHistory.getMatchId());
-        });
+        matchHistoryList.forEach(matchHistory -> updateMatchDetailByMatchId(matchHistory.getMatchId()));
     }
 
     @Override
