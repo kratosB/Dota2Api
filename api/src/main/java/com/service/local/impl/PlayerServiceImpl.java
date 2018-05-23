@@ -2,10 +2,16 @@ package com.service.local.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.api.req.GetPlayerInfoReq;
+import com.api.req.PlayerWinRateReq;
+import com.api.vo.PlayerWinRateVo;
 import com.config.Configuration;
+import com.dao.MatchPlayerDao;
 import com.dao.RelationDao;
+import com.dao.entity.MatchHistory;
+import com.dao.entity.MatchPlayer;
 import com.dao.entity.Relation;
 import com.service.local.IPlayerService;
 import com.util.SteamIdConverter;
@@ -20,6 +26,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.util.JsonMapper;
 
 import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 
 /**
  * Created on 2018/3/28.
@@ -33,13 +40,17 @@ public class PlayerServiceImpl implements IPlayerService {
 
     private RelationDao relationDao;
 
+    private MatchPlayerDao matchPlayerDao;
+
     private Configuration configuration;
 
     @Autowired
-    public PlayerServiceImpl(PlayerDao playerDao, Configuration configuration, RelationDao relationDao) {
+    public PlayerServiceImpl(PlayerDao playerDao, Configuration configuration, RelationDao relationDao,
+            MatchPlayerDao matchPlayerDao) {
         this.playerDao = playerDao;
         this.configuration = configuration;
         this.relationDao = relationDao;
+        this.matchPlayerDao = matchPlayerDao;
     }
 
     @Override
@@ -86,6 +97,66 @@ public class PlayerServiceImpl implements IPlayerService {
             }));
         }
         return playerList;
+    }
+
+    @Override
+    public PlayerWinRateVo getPlayerWinRate(PlayerWinRateReq playerWinRateReq) {
+        // 根据参数获取选手信息
+        String dota2Id = playerWinRateReq.getDota2Id();
+        String steamId = playerWinRateReq.getSteamId();
+        String name = playerWinRateReq.getName();
+        List<Player> playerList;
+        if (StringUtils.isNotBlank(dota2Id)) {
+            GetPlayerInfoReq getPlayerInfoReq = new GetPlayerInfoReq();
+            getPlayerInfoReq.setDotaId(dota2Id);
+            playerList = getPlayerInfo(getPlayerInfoReq);
+        } else if (StringUtils.isNotBlank(steamId)) {
+            GetPlayerInfoReq getPlayerInfoReq = new GetPlayerInfoReq();
+            getPlayerInfoReq.setSteamId(steamId);
+            playerList = getPlayerInfo(getPlayerInfoReq);
+        } else if (StringUtils.isNotBlank(name)) {
+            GetPlayerInfoReq getPlayerInfoReq = new GetPlayerInfoReq();
+            getPlayerInfoReq.setPlayerName(name);
+            playerList = getPlayerInfo(getPlayerInfoReq);
+        } else {
+            return null;
+        }
+        Player player;
+        if (playerList.size() == 0) {
+            return null;
+        } else {
+            player = playerList.get(0);
+        }
+        // 根据选手信息，查询数据
+        List<MatchPlayer> matchPlayerList = matchPlayerDao.findAll(((root, query, cb) -> {
+            Root<MatchHistory> matchHistoryRoot = query.from(MatchHistory.class);
+            Predicate predicate = cb.and(cb.equal(root.get("matchId"), matchHistoryRoot.get("matchId")),
+                    cb.equal(root.get("accountId"), player.getDotaAccountId()));
+            int ranked = 7;
+            if (playerWinRateReq.isRanked()) {
+                predicate = cb.and(predicate, cb.equal(matchHistoryRoot.get("lobbyType"), ranked));
+            }
+            query.orderBy(cb.desc(matchHistoryRoot.get("matchId")));
+            return predicate;
+        }));
+        if (playerWinRateReq.getSize()!=0) {
+            matchPlayerList = matchPlayerList.subList(0,playerWinRateReq.getSize());
+        }
+//        else if (playerWinRateReq.getDuration()!=0) {
+//            Date date = new Date();
+//            Long newdddd = date.getTime() - playerWinRateReq.getDuration() * 86400 *1000;
+//            Date newDate  = new Date(newdddd);
+//            matchPlayerList.stream().filter(matchPlayer -> matchPlayer)
+//        }
+        PlayerWinRateVo playerWinRateVo = new PlayerWinRateVo();
+        playerWinRateVo.setPlayerName(player.getPersonaname());
+        int winCount =   matchPlayerList.stream().filter(matchPlayer -> matchPlayer.getWin() == 1).collect(Collectors.toList()).size();
+        int loseCount = matchPlayerList.stream().filter(matchPlayer -> matchPlayer.getWin() == 0).collect(Collectors.toList()).size();
+        playerWinRateVo.setWinCount(winCount);
+        playerWinRateVo.setLoseCount(loseCount);
+        double winRate = ((double) winCount)/((double) winCount + (double) loseCount);
+        playerWinRateVo.setWinRate(winRate);
+        return playerWinRateVo;
     }
 
     public void updateRelation(String steamId, List<String> friendIdList) {

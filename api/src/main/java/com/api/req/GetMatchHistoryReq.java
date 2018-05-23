@@ -1,5 +1,6 @@
 package com.api.req;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 /**
@@ -18,6 +19,7 @@ public class GetMatchHistoryReq {
 
     private String minPlayers;
 
+    @ApiModelProperty("这里的accountId可以是steamId，也可以是dota2Id")
     private String accountId;
 
     private String leagueId;

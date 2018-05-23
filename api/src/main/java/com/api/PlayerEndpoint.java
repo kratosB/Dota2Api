@@ -1,11 +1,14 @@
 package com.api;
 
 import com.api.req.GetPlayerInfoReq;
+import com.api.req.PlayerWinRateReq;
+import com.api.vo.PlayerWinRateVo;
 import com.config.Configuration;
 import com.dao.entity.Player;
 import com.service.local.IPlayerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -36,7 +39,7 @@ public class PlayerEndpoint {
     }
 
     @ApiOperation("从steam，根据steamId更新player的数据")
-    @PostMapping(value = "/api/player/steam/updatePlayerDataBySteamId")
+    @GetMapping(value = "/api/player/steam/updatePlayerDataBySteamId")
     public void updatePlayerDataBySteamId(
             @ApiParam(name = "steamId") @RequestParam(name = "steamId", required = false) String steamId) {
         logger.info("开始从steam，根据steamId更新player的数据，steamId={}",steamId);
@@ -48,7 +51,7 @@ public class PlayerEndpoint {
     }
 
     @ApiOperation("从steam，根据steamId更新player的friend数据")
-    @PostMapping(value = "/api/player/steam/updateFriendDataBySteamId")
+    @GetMapping(value = "/api/player/steam/updateFriendDataBySteamId")
     public void updateFriendDataBySteamId(
             @ApiParam(name = "steamId") @RequestParam(name = "steamId", required = false) String steamId) {
         logger.info("开始从steam，根据steamId更新player的friend数据，steamId={}",steamId);
@@ -66,5 +69,14 @@ public class PlayerEndpoint {
         List<Player> playerList = playerServiceImpl.getPlayerInfo(getPlayerInfoReq);
         logger.info("结束查找选手，playerList.size = {}", playerList.size());
         return playerList;
+    }
+
+    @ApiOperation("获取玩家胜率")
+    @PostMapping(value = "/api/player/getPlayerWinRate")
+    public PlayerWinRateVo getPlayerWinRate(@RequestBody PlayerWinRateReq playerWinRateReq) {
+        logger.info("开始获取玩家胜率，playerWinRateReq = {}",playerWinRateReq);
+        PlayerWinRateVo playerWinRateVo = playerServiceImpl.getPlayerWinRate(playerWinRateReq);
+        logger.info("结束获取玩家胜率，playerWinRateVo = {}", playerWinRateVo);
+        return playerWinRateVo;
     }
 }
