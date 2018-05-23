@@ -218,7 +218,9 @@ public class MatchServiceImpl implements IMatchService {
 
     private MatchPlayer convertMatchPlayerNodeToMatchPlayer(JsonNode matchPlayerNode) {
         MatchPlayer matchPlayer = new MatchPlayer();
-        matchPlayer.setAccountId(matchPlayerNode.findValue("account_id").asLong());
+        // 当联机打ai的时候，对面ai玩家没有account_id的
+        matchPlayer.setAccountId(
+                matchPlayerNode.findValue("account_id") != null ? matchPlayerNode.findValue("account_id").asLong() : 0L);
         matchPlayer.setPlayerSlot(matchPlayerNode.findValue("player_slot").asInt());
         matchPlayer.setHeroId(matchPlayerNode.findValue("hero_id").asInt());
         matchPlayer.setItem0(matchPlayerNode.findValue("item_0").asInt());
