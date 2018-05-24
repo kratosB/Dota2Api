@@ -24,10 +24,13 @@ public class Config {
     private String apiVersion;
 
     @Value("${steam.api.key.first}")
-    private String apiKeyFirst;
+    private String apiKey1;
 
     @Value("${steam.api.key.second}")
-    private String apiKeySecond;
+    private String apiKey2;
+
+    @Value("${steam.api.key.third}")
+    private String apiKey3;
 
     @Value("${steam.api.and}")
     private String apiAnd;

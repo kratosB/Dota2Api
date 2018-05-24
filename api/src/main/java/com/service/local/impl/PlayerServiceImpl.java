@@ -65,8 +65,8 @@ public class PlayerServiceImpl implements IPlayerService {
     public void updateFriendDataBySteamId(String steamId) {
         String getFriendList = "GetFriendList/";
         String steamIdKey = "steamid=";
-        String getFriendListUrl = config.getSteamUserUrl() + getFriendList + config.getApiVersion() + config.getApiKeyFirst()
-                + config.getApiAnd() + steamIdKey + steamId;
+        String getFriendListUrl = config.getSteamUserUrl() + getFriendList + config.getApiVersion() + steamIdKey + steamId
+                + config.getApiAnd();
         String response = gateway.getForObject(getFriendListUrl);
         JsonNode jsonNodes = JsonMapper.nonDefaultMapper().fromJson(response, JsonNode.class);
         JsonNode friendNodes = jsonNodes.findPath("friends");
@@ -171,10 +171,10 @@ public class PlayerServiceImpl implements IPlayerService {
     private void updatePlayerData(String steamIds) {
         // 获取steam的hero数据
         String getPlayerSummaries = "GetPlayerSummaries/";
-        String version = "v0002/";
+        String version = "v0002/?";
         String steamIdsKey = "steamids=";
-        String getPlayerSummariesUrl = config.getSteamUserUrl() + getPlayerSummaries + version + config.getApiKeyFirst()
-                + config.getApiAnd() + steamIdsKey + steamIds;
+        String getPlayerSummariesUrl = config.getSteamUserUrl() + getPlayerSummaries + version + steamIdsKey + steamIds
+                + config.getApiAnd();
         String response = gateway.getForObject(getPlayerSummariesUrl);
         JsonNode jsonNodes = JsonMapper.nonDefaultMapper().fromJson(response, JsonNode.class);
         JsonNode playerNodes = jsonNodes.findPath("players");

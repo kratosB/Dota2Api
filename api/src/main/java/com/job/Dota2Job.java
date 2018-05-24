@@ -22,7 +22,7 @@ public class Dota2Job {
         this.matchServiceImpl = matchServiceImpl;
     }
 
-    @Scheduled(fixedRate = 30000)
+    @Scheduled(fixedRate = 60000)
     public void updateMatchDetail() {
         matchServiceImpl.updateMatchDetailJob();
     }

@@ -30,36 +30,36 @@ public class SteamMatchServiceImpl implements ISteamMatchService {
     public String getMatchHistory(GetMatchHistoryReq getMatchHistoryReq) {
         String getMatchHistory = "GetMatchHistory/";
         StringBuilder sb = new StringBuilder();
-        sb.append(config.getIDota2Url()).append(getMatchHistory).append(config.getApiVersion()).append(config.getApiKeyFirst());
+        sb.append(config.getIDota2Url()).append(getMatchHistory).append(config.getApiVersion());
         if (getMatchHistoryReq.getAccountId() != null) {
-            sb.append(config.getApiAnd()).append("account_id=").append(getMatchHistoryReq.getAccountId());
+            sb.append("account_id=").append(getMatchHistoryReq.getAccountId()).append(config.getApiAnd());
         }
         if (getMatchHistoryReq.getGameMode() != null) {
-            sb.append(config.getApiAnd()).append("game_mode=").append(getMatchHistoryReq.getGameMode());
+            sb.append("game_mode=").append(getMatchHistoryReq.getGameMode()).append(config.getApiAnd());
         }
         if (getMatchHistoryReq.getHeroId() != null) {
-            sb.append(config.getApiAnd()).append("hero_id=").append(getMatchHistoryReq.getHeroId());
+            sb.append("hero_id=").append(getMatchHistoryReq.getHeroId()).append(config.getApiAnd());
         }
         if (getMatchHistoryReq.getLeagueId() != null) {
-            sb.append(config.getApiAnd()).append("league_id=").append(getMatchHistoryReq.getLeagueId());
+            sb.append("league_id=").append(getMatchHistoryReq.getLeagueId()).append(config.getApiAnd());
         }
         if (getMatchHistoryReq.getMatchesRequested() != null) {
-            sb.append(config.getApiAnd()).append("matches_requested=").append(getMatchHistoryReq.getMatchesRequested());
+            sb.append("matches_requested=").append(getMatchHistoryReq.getMatchesRequested()).append(config.getApiAnd());
         }
         if (getMatchHistoryReq.getMinPlayers() != null) {
-            sb.append(config.getApiAnd()).append("min_players=").append(getMatchHistoryReq.getMinPlayers());
+            sb.append("min_players=").append(getMatchHistoryReq.getMinPlayers()).append(config.getApiAnd());
         }
         if (getMatchHistoryReq.getSkill() != null) {
-            sb.append(config.getApiAnd()).append("skill=").append(getMatchHistoryReq.getSkill());
+            sb.append("skill=").append(getMatchHistoryReq.getSkill()).append(config.getApiAnd());
         }
         if (getMatchHistoryReq.getStartAtMatchId() != null) {
-            sb.append(config.getApiAnd()).append("start_at_match_id=").append(getMatchHistoryReq.getStartAtMatchId());
+            sb.append("start_at_match_id=").append(getMatchHistoryReq.getStartAtMatchId()).append(config.getApiAnd());
         }
         if (getMatchHistoryReq.getDateMax() != null) {
-            sb.append(config.getApiAnd()).append("date_max=").append(getMatchHistoryReq.getDateMax());
+            sb.append("date_max=").append(getMatchHistoryReq.getDateMax()).append(config.getApiAnd());
         }
         if (getMatchHistoryReq.getDateMin() != null) {
-            sb.append(config.getApiAnd()).append("date_min=").append(getMatchHistoryReq.getDateMin());
+            sb.append("date_min=").append(getMatchHistoryReq.getDateMin()).append(config.getApiAnd());
         }
         return gateway.getForObject(sb.toString());
     }
@@ -68,8 +68,7 @@ public class SteamMatchServiceImpl implements ISteamMatchService {
     public String getMatchDetailByMatchId(long matchId) {
         String getMatchDetails = "GetMatchDetails/";
         String matchIdStr = "match_id=" + matchId;
-        String getHeroUrl = config.getIDota2Url() + getMatchDetails + config.getApiVersion() + config.getApiKeyFirst()
-                + config.getApiAnd() + matchIdStr;
+        String getHeroUrl = config.getIDota2Url() + getMatchDetails + config.getApiVersion() + matchIdStr + config.getApiAnd();
         return gateway.getForObject(getHeroUrl);
     }
 
@@ -77,8 +76,7 @@ public class SteamMatchServiceImpl implements ISteamMatchService {
     public MatchDetail getMatchDetail(long matchId) {
         String getMatchDetails = "GetMatchDetails/";
         String matchIdStr = "match_id=" + matchId;
-        String getHeroUrl = config.getIDota2Url() + getMatchDetails + config.getApiVersion() + config.getApiKeyFirst()
-                + config.getApiAnd() + matchIdStr;
+        String getHeroUrl = config.getIDota2Url() + getMatchDetails + config.getApiVersion() + matchIdStr + config.getApiAnd();
         String response = gateway.getForObject(getHeroUrl);
         MatchDetailEntity matchDetailEntity = JsonMapper.nonDefaultMapper().fromJson(response, MatchDetailEntity.class);
         return matchDetailEntity.getResult();

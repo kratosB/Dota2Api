@@ -44,8 +44,7 @@ public class SteamHeroItemServiceImpl implements ISteamHeroItemService {
     public void updateHeroData() {
         // 获取steam的hero数据
         String getHero = "GetHeroes/";
-        String getHeroUrl = config.getIEconUrl() + getHero + config.getApiVersion() + config.getApiKeyFirst() + config.getApiAnd()
-                + config.getApiLanguage();
+        String getHeroUrl = config.getIEconUrl() + getHero + config.getApiVersion() + config.getApiLanguage() + config.getApiAnd();
         String response = gateway.getForObject(getHeroUrl);
         JsonNode jsonNodes = JsonMapper.nonDefaultMapper().fromJson(response, JsonNode.class);
         JsonNode heroNodes = jsonNodes.findPath("heroes");
@@ -75,8 +74,7 @@ public class SteamHeroItemServiceImpl implements ISteamHeroItemService {
     @Override
     public void updateItemData() {
         String getItem = "GetGameItems/";
-        String getHeroUrl = config.getIEconUrl() + getItem + config.getApiVersion() + config.getApiKeyFirst() + config.getApiAnd()
-                + config.getApiLanguage();
+        String getHeroUrl = config.getIEconUrl() + getItem + config.getApiVersion() + config.getApiLanguage() + config.getApiAnd();
         String response = gateway.getForObject(getHeroUrl);
         JsonNode jsonNodes = JsonMapper.nonDefaultMapper().fromJson(response, JsonNode.class);
         JsonNode itemNodes = jsonNodes.findPath("items");

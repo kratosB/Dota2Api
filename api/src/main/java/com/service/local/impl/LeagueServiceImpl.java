@@ -46,10 +46,9 @@ public class LeagueServiceImpl implements ILeagueService {
     @Override
     public LeaguesEntity listLeague() {
         String getLeague = "GetLeagueListing/";
-        String language = "language=zh";
-        String getHeroUrl = config.getIDota2Url() + getLeague + config.getApiVersion() + config.getApiKeyFirst()
-                + config.getApiAnd() + language;
-        String response = gateway.getForObject(getHeroUrl);
+        String getLeagueUrl = config.getIDota2Url() + getLeague + config.getApiVersion() + config.getApiLanguage()
+                + config.getApiAnd();
+        String response = gateway.getForObject(getLeagueUrl);
         return JsonMapper.nonDefaultMapper().fromJson(response, LeaguesEntity.class);
     }
 
@@ -57,9 +56,9 @@ public class LeagueServiceImpl implements ILeagueService {
     public MatchesEntity getLeague(int leagueId) {
         String getMatchHistory = "GetMatchHistory/";
         String leagueIdStr = "league_id=" + leagueId;
-        String getHeroUrl = config.getIDota2Url() + getMatchHistory + config.getApiVersion() + config.getApiKeyFirst()
-                + config.getApiAnd() + leagueIdStr;
-        String response = gateway.getForObject(getHeroUrl);
+        String getMatchHistoryUrl = config.getIDota2Url() + getMatchHistory + config.getApiVersion() + leagueIdStr
+                + config.getApiAnd();
+        String response = gateway.getForObject(getMatchHistoryUrl);
         return JsonMapper.nonDefaultMapper().fromJson(response, MatchesEntity.class);
     }
 

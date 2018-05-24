@@ -1,4 +1,5 @@
 import java.util.Date;
+import java.util.Random;
 
 /**
  * Created on 2017/06/19.
@@ -6,8 +7,9 @@ import java.util.Date;
 public class HashTest {
 
     public static void main(String[] args) {
-        long time = 1445701409000L;
-        System.out.println(new Date(time));
+        int i =0;
+        while (++i<100)
+        System.out.println(new Random().nextInt(3));
     }
 
 }
