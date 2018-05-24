@@ -7,7 +7,7 @@ spring:
     password: 784533
     driver-class-name: com.mysql.jdbc.Driver
 #  jpa:
-#    show-sql: true
+                   #    show-sql: true
 
 steam:
   api:
@@ -19,7 +19,9 @@ steam:
         user: http://api.steampowered.com/ISteamUser/
     version:
       v1: v1/
-    key: ?key=EFA1E81676FCC47157EA871A67741EF5
+    key:
+      first: ?key=EFA1E81676FCC47157EA871A67741EF5
+      second: ?key=203567935DB339ED47B8D3941A471E1D
     and: "&"
     language:
       zh: language=zh

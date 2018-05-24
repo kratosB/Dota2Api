@@ -7,14 +7,14 @@ import com.bean.match.Match;
 import com.bean.match.MatchDetail;
 import com.bean.match.MatchesEntity;
 import com.bean.match.MatchesHistory;
-import com.config.Configuration;
+import com.config.Config;
 import com.service.local.ILeagueService;
 import com.service.steam.ISteamMatchService;
+import com.util.Gateway;
 import com.util.JsonMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,17 +28,18 @@ import java.util.stream.Collectors;
 @Service
 public class LeagueServiceImpl implements ILeagueService {
 
-    private Configuration configuration;
+    private Config config;
+
+    private Gateway gateway;
 
     private ISteamMatchService steamMatchServiceImpl;
 
     private String stringTrue = "true";
 
-    private RestTemplate restTemplate = new RestTemplate();
-
     @Autowired
-    public LeagueServiceImpl(Configuration configuration, ISteamMatchService steamMatchServiceImpl) {
-        this.configuration = configuration;
+    public LeagueServiceImpl(Config config, Gateway gateway, ISteamMatchService steamMatchServiceImpl) {
+        this.config = config;
+        this.gateway = gateway;
         this.steamMatchServiceImpl = steamMatchServiceImpl;
     }
 
@@ -46,9 +47,9 @@ public class LeagueServiceImpl implements ILeagueService {
     public LeaguesEntity listLeague() {
         String getLeague = "GetLeagueListing/";
         String language = "language=zh";
-        String getHeroUrl = configuration.getIDota2Url() + getLeague + configuration.getApiVersion() + configuration.getApiKey()
-                + configuration.getApiAnd() + language;
-        String response = restTemplate.getForObject(getHeroUrl, String.class);
+        String getHeroUrl = config.getIDota2Url() + getLeague + config.getApiVersion() + config.getApiKeyFirst()
+                + config.getApiAnd() + language;
+        String response = gateway.getForObject(getHeroUrl);
         return JsonMapper.nonDefaultMapper().fromJson(response, LeaguesEntity.class);
     }
 
@@ -56,9 +57,9 @@ public class LeagueServiceImpl implements ILeagueService {
     public MatchesEntity getLeague(int leagueId) {
         String getMatchHistory = "GetMatchHistory/";
         String leagueIdStr = "league_id=" + leagueId;
-        String getHeroUrl = configuration.getIDota2Url() + getMatchHistory + configuration.getApiVersion()
-                + configuration.getApiKey() + configuration.getApiAnd() + leagueIdStr;
-        String response = restTemplate.getForObject(getHeroUrl, String.class);
+        String getHeroUrl = config.getIDota2Url() + getMatchHistory + config.getApiVersion() + config.getApiKeyFirst()
+                + config.getApiAnd() + leagueIdStr;
+        String response = gateway.getForObject(getHeroUrl);
         return JsonMapper.nonDefaultMapper().fromJson(response, MatchesEntity.class);
     }
 

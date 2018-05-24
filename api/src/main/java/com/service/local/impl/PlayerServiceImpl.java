@@ -7,18 +7,18 @@ import java.util.stream.Collectors;
 import com.api.req.GetPlayerInfoReq;
 import com.api.req.PlayerWinRateReq;
 import com.api.vo.PlayerWinRateVo;
-import com.config.Configuration;
+import com.config.Config;
 import com.dao.MatchPlayerDao;
 import com.dao.RelationDao;
 import com.dao.entity.MatchHistory;
 import com.dao.entity.MatchPlayer;
 import com.dao.entity.Relation;
 import com.service.local.IPlayerService;
+import com.util.Gateway;
 import com.util.SteamIdConverter;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 import com.dao.PlayerDao;
 import com.dao.entity.Player;
@@ -42,15 +42,18 @@ public class PlayerServiceImpl implements IPlayerService {
 
     private MatchPlayerDao matchPlayerDao;
 
-    private Configuration configuration;
+    private Config config;
+
+    private Gateway gateway;
 
     @Autowired
-    public PlayerServiceImpl(PlayerDao playerDao, Configuration configuration, RelationDao relationDao,
-            MatchPlayerDao matchPlayerDao) {
+    public PlayerServiceImpl(PlayerDao playerDao, Config config, RelationDao relationDao, MatchPlayerDao matchPlayerDao,
+            Gateway gateway) {
         this.playerDao = playerDao;
-        this.configuration = configuration;
+        this.config = config;
         this.relationDao = relationDao;
         this.matchPlayerDao = matchPlayerDao;
+        this.gateway = gateway;
     }
 
     @Override
@@ -62,10 +65,9 @@ public class PlayerServiceImpl implements IPlayerService {
     public void updateFriendDataBySteamId(String steamId) {
         String getFriendList = "GetFriendList/";
         String steamIdKey = "steamid=";
-        String getFriendListUrl = configuration.getSteamUserUrl() + getFriendList + configuration.getApiVersion()
-                + configuration.getApiKey() + configuration.getApiAnd() + steamIdKey + steamId;
-        RestTemplate restTemplate = new RestTemplate();
-        String response = restTemplate.getForObject(getFriendListUrl, String.class);
+        String getFriendListUrl = config.getSteamUserUrl() + getFriendList + config.getApiVersion() + config.getApiKeyFirst()
+                + config.getApiAnd() + steamIdKey + steamId;
+        String response = gateway.getForObject(getFriendListUrl);
         JsonNode jsonNodes = JsonMapper.nonDefaultMapper().fromJson(response, JsonNode.class);
         JsonNode friendNodes = jsonNodes.findPath("friends");
         StringBuilder steamIdsBuilder = new StringBuilder();
@@ -139,22 +141,24 @@ public class PlayerServiceImpl implements IPlayerService {
             query.orderBy(cb.desc(matchHistoryRoot.get("matchId")));
             return predicate;
         }));
-        if (playerWinRateReq.getSize()!=0) {
-            matchPlayerList = matchPlayerList.subList(0,playerWinRateReq.getSize());
+        if (playerWinRateReq.getSize() != 0) {
+            matchPlayerList = matchPlayerList.subList(0, playerWinRateReq.getSize());
         }
-//        else if (playerWinRateReq.getDuration()!=0) {
-//            Date date = new Date();
-//            Long newdddd = date.getTime() - playerWinRateReq.getDuration() * 86400 *1000;
-//            Date newDate  = new Date(newdddd);
-//            matchPlayerList.stream().filter(matchPlayer -> matchPlayer)
-//        }
+        // else if (playerWinRateReq.getDuration()!=0) {
+        // Date date = new Date();
+        // Long newdddd = date.getTime() - playerWinRateReq.getDuration() * 86400 *1000;
+        // Date newDate = new Date(newdddd);
+        // matchPlayerList.stream().filter(matchPlayer -> matchPlayer)
+        // }
         PlayerWinRateVo playerWinRateVo = new PlayerWinRateVo();
         playerWinRateVo.setPlayerName(player.getPersonaname());
-        int winCount =   matchPlayerList.stream().filter(matchPlayer -> matchPlayer.getWin() == 1).collect(Collectors.toList()).size();
-        int loseCount = matchPlayerList.stream().filter(matchPlayer -> matchPlayer.getWin() == 0).collect(Collectors.toList()).size();
+        int winCount = matchPlayerList.stream().filter(matchPlayer -> matchPlayer.getWin() == 1).collect(Collectors.toList())
+                .size();
+        int loseCount = matchPlayerList.stream().filter(matchPlayer -> matchPlayer.getWin() == 0).collect(Collectors.toList())
+                .size();
         playerWinRateVo.setWinCount(winCount);
         playerWinRateVo.setLoseCount(loseCount);
-        double winRate = ((double) winCount)/((double) winCount + (double) loseCount);
+        double winRate = ((double) winCount) / ((double) winCount + (double) loseCount);
         playerWinRateVo.setWinRate(winRate);
         return playerWinRateVo;
     }
@@ -169,10 +173,9 @@ public class PlayerServiceImpl implements IPlayerService {
         String getPlayerSummaries = "GetPlayerSummaries/";
         String version = "v0002/";
         String steamIdsKey = "steamids=";
-        String getPlayerSummariesUrl = configuration.getSteamUserUrl() + getPlayerSummaries + version + configuration.getApiKey()
-                + configuration.getApiAnd() + steamIdsKey + steamIds;
-        RestTemplate restTemplate = new RestTemplate();
-        String response = restTemplate.getForObject(getPlayerSummariesUrl, String.class);
+        String getPlayerSummariesUrl = config.getSteamUserUrl() + getPlayerSummaries + version + config.getApiKeyFirst()
+                + config.getApiAnd() + steamIdsKey + steamIds;
+        String response = gateway.getForObject(getPlayerSummariesUrl);
         JsonNode jsonNodes = JsonMapper.nonDefaultMapper().fromJson(response, JsonNode.class);
         JsonNode playerNodes = jsonNodes.findPath("players");
         List<Player> playerList = new ArrayList<>();

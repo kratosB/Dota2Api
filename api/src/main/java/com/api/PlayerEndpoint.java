@@ -3,7 +3,7 @@ package com.api;
 import com.api.req.GetPlayerInfoReq;
 import com.api.req.PlayerWinRateReq;
 import com.api.vo.PlayerWinRateVo;
-import com.config.Configuration;
+import com.config.Config;
 import com.dao.entity.Player;
 import com.service.local.IPlayerService;
 import org.slf4j.Logger;
@@ -31,35 +31,35 @@ public class PlayerEndpoint {
 
     private IPlayerService playerServiceImpl;
 
-    private Configuration configuration;
+    private Config config;
 
-    public PlayerEndpoint(IPlayerService playerServiceImpl, Configuration configuration) {
+    public PlayerEndpoint(IPlayerService playerServiceImpl, Config config) {
         this.playerServiceImpl = playerServiceImpl;
-        this.configuration = configuration;
+        this.config = config;
     }
 
     @ApiOperation("从steam，根据steamId更新player的数据")
     @GetMapping(value = "/api/player/steam/updatePlayerDataBySteamId")
     public void updatePlayerDataBySteamId(
             @ApiParam(name = "steamId") @RequestParam(name = "steamId", required = false) String steamId) {
-        logger.info("开始从steam，根据steamId更新player的数据，steamId={}",steamId);
+        logger.info("开始从steam，根据steamId更新player的数据，steamId={}", steamId);
         if (steamId == null) {
-            steamId = configuration.getAdminSteamId();
+            steamId = config.getAdminSteamId();
         }
         playerServiceImpl.updatePlayerDataBySteamId(steamId);
-        logger.info("结束从steam，根据steamId更新player的数据，steamId={}",steamId);
+        logger.info("结束从steam，根据steamId更新player的数据，steamId={}", steamId);
     }
 
     @ApiOperation("从steam，根据steamId更新player的friend数据")
     @GetMapping(value = "/api/player/steam/updateFriendDataBySteamId")
     public void updateFriendDataBySteamId(
             @ApiParam(name = "steamId") @RequestParam(name = "steamId", required = false) String steamId) {
-        logger.info("开始从steam，根据steamId更新player的friend数据，steamId={}",steamId);
+        logger.info("开始从steam，根据steamId更新player的friend数据，steamId={}", steamId);
         if (steamId == null) {
-            steamId = configuration.getAdminSteamId();
+            steamId = config.getAdminSteamId();
         }
         playerServiceImpl.updateFriendDataBySteamId(steamId);
-        logger.info("结束从steam，根据steamId更新player的friend数据，steamId={}",steamId);
+        logger.info("结束从steam，根据steamId更新player的friend数据，steamId={}", steamId);
     }
 
     @ApiOperation("查找选手")
@@ -74,7 +74,7 @@ public class PlayerEndpoint {
     @ApiOperation("获取玩家胜率")
     @PostMapping(value = "/api/player/getPlayerWinRate")
     public PlayerWinRateVo getPlayerWinRate(@RequestBody PlayerWinRateReq playerWinRateReq) {
-        logger.info("开始获取玩家胜率，playerWinRateReq = {}",playerWinRateReq);
+        logger.info("开始获取玩家胜率，playerWinRateReq = {}", playerWinRateReq);
         PlayerWinRateVo playerWinRateVo = playerServiceImpl.getPlayerWinRate(playerWinRateReq);
         logger.info("结束获取玩家胜率，playerWinRateVo = {}", playerWinRateVo);
         return playerWinRateVo;

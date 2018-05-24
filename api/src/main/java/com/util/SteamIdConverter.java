@@ -7,7 +7,7 @@ package com.util;
  */
 public class SteamIdConverter {
 
-    private  Long constant = 76561197960265728L;
+    private Long constant = 76561197960265728L;
 
     public String getId64(String inputId) {
         Long id = Long.parseLong(inputId);

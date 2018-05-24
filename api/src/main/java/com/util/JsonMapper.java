@@ -29,6 +29,8 @@ import de.odysseus.staxon.json.JsonXMLOutputFactory;
 /**
  * 简单封装Jackson，实现JSON String<->Java Object的Mapper. 封装不同的输出风格,
  * 使用不同的builder函数创建实例.
+ * 
+ * @author zhiqiang bao
  */
 public class JsonMapper {
 
@@ -36,11 +38,7 @@ public class JsonMapper {
 
     private ObjectMapper mapper;
 
-    public JsonMapper() {
-        this(null);
-    }
-
-    public JsonMapper(Include include) {
+    private JsonMapper(Include include) {
         mapper = new ObjectMapper();
         // 设置输出时包含属性的风格
         if (include != null) {
@@ -79,8 +77,8 @@ public class JsonMapper {
 
     /**
      * 反序列化POJO或简单Collection如List<String>. 如果JSON字符串为Null或"null"字符串, 返回Null.
-     * 如果JSON字符串为"[]", 返回空集合. 如需反序列化复杂Collection如List<MyBean>,
-     * 请使用fromJson(String, JavaType)
+     * 如果JSON字符串为"[]", 返回空集合. 如需反序列化复杂Collection如List<MyBean>, 请使用fromJson(String,
+     * JavaType)
      *
      * @see #fromJson(String, JavaType)
      */
@@ -98,8 +96,8 @@ public class JsonMapper {
     }
 
     /**
-     * 反序列化复杂Collection如List<Bean>,
-     * 先使用createCollectionType()或contructMapType()构造类型, 然后调用本函数.
+     * 反序列化复杂Collection如List<Bean>, 先使用createCollectionType()或contructMapType()构造类型,
+     * 然后调用本函数.
      */
     @SuppressWarnings("unchecked")
     public <T> T fromJson(String jsonString, JavaType javaType) {

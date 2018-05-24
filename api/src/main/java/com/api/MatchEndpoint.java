@@ -2,7 +2,7 @@ package com.api;
 
 import com.api.req.GetMatchHistoryReq;
 import com.bean.match.MatchDetail;
-import com.config.Configuration;
+import com.config.Config;
 import com.service.local.IMatchService;
 import com.service.steam.ISteamMatchService;
 import io.swagger.annotations.ApiOperation;
@@ -32,11 +32,11 @@ public class MatchEndpoint {
 
     private ISteamMatchService steamMatchServiceImpl;
 
-    private Configuration configuration;
+    private Config config;
 
     @Autowired
-    public MatchEndpoint(Configuration configuration, IMatchService matchServiceImpl, ISteamMatchService steamMatchServiceImpl) {
-        this.configuration = configuration;
+    public MatchEndpoint(Config config, IMatchService matchServiceImpl, ISteamMatchService steamMatchServiceImpl) {
+        this.config = config;
         this.matchServiceImpl = matchServiceImpl;
         this.steamMatchServiceImpl = steamMatchServiceImpl;
     }
@@ -63,7 +63,7 @@ public class MatchEndpoint {
     public void updateMatchId(@ApiParam(name = "steamId") @RequestParam(name = "steamId", required = false) String steamId) {
         logger.info("开始从steam，根据比赛steamId，批量更新比赛Id，steamId = {}", steamId);
         if (steamId == null) {
-            steamId = configuration.getAdminSteamId();
+            steamId = config.getAdminSteamId();
         }
         matchServiceImpl.updateMatchId(steamId);
         logger.info("结束从steam，根据比赛steamId，批量更新比赛Id，steamId = {}", steamId);
@@ -87,7 +87,7 @@ public class MatchEndpoint {
             @ApiParam(name = "heroId") @RequestParam(name = "heroId", required = false) int heroId) {
         logger.info("开始从steam，根据英雄id获取所有比赛的比赛id，steamId = {}，heroId = {}", steamId, heroId);
         if (steamId == null) {
-            steamId = configuration.getAdminSteamId();
+            steamId = config.getAdminSteamId();
         }
         List<Long> matchIdList = matchServiceImpl.getMatchIdBySteamIdAndHeroId(steamId, heroId, null);
         logger.info("结束从steam，根据英雄id获取所有比赛的比赛id，matchIdList.size = {}", matchIdList.size());

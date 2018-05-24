@@ -1,16 +1,16 @@
 package com.service.steam.impl;
 
-import com.config.Configuration;
+import com.config.Config;
 import com.dao.HeroDao;
 import com.dao.ItemDao;
 import com.dao.entity.Hero;
 import com.dao.entity.Item;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.service.steam.ISteamHeroItemService;
+import com.util.Gateway;
 import com.util.JsonMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,23 +28,25 @@ public class SteamHeroItemServiceImpl implements ISteamHeroItemService {
 
     private ItemDao itemDao;
 
-    private Configuration configuration;
+    private Config config;
+
+    private Gateway gateway;
 
     @Autowired
-    public SteamHeroItemServiceImpl(HeroDao heroDao, ItemDao itemDao, Configuration configuration) {
+    public SteamHeroItemServiceImpl(HeroDao heroDao, ItemDao itemDao, Config config, Gateway gateway) {
         this.heroDao = heroDao;
         this.itemDao = itemDao;
-        this.configuration = configuration;
+        this.config = config;
+        this.gateway = gateway;
     }
 
     @Override
     public void updateHeroData() {
         // 获取steam的hero数据
         String getHero = "GetHeroes/";
-        String getHeroUrl = configuration.getIEconUrl() + getHero + configuration.getApiVersion() + configuration.getApiKey()
-                + configuration.getApiAnd() + configuration.getApiLanguage();
-        RestTemplate restTemplate = new RestTemplate();
-        String response = restTemplate.getForObject(getHeroUrl, String.class);
+        String getHeroUrl = config.getIEconUrl() + getHero + config.getApiVersion() + config.getApiKeyFirst() + config.getApiAnd()
+                + config.getApiLanguage();
+        String response = gateway.getForObject(getHeroUrl);
         JsonNode jsonNodes = JsonMapper.nonDefaultMapper().fromJson(response, JsonNode.class);
         JsonNode heroNodes = jsonNodes.findPath("heroes");
         // 获取数据库中的heroList
@@ -73,10 +75,9 @@ public class SteamHeroItemServiceImpl implements ISteamHeroItemService {
     @Override
     public void updateItemData() {
         String getItem = "GetGameItems/";
-        String getHeroUrl = configuration.getIEconUrl() + getItem + configuration.getApiVersion() + configuration.getApiKey()
-                + configuration.getApiAnd() + configuration.getApiLanguage();
-        RestTemplate restTemplate = new RestTemplate();
-        String response = restTemplate.getForObject(getHeroUrl, String.class);
+        String getHeroUrl = config.getIEconUrl() + getItem + config.getApiVersion() + config.getApiKeyFirst() + config.getApiAnd()
+                + config.getApiLanguage();
+        String response = gateway.getForObject(getHeroUrl);
         JsonNode jsonNodes = JsonMapper.nonDefaultMapper().fromJson(response, JsonNode.class);
         JsonNode itemNodes = jsonNodes.findPath("items");
         // 获取数据库中的ItemList
