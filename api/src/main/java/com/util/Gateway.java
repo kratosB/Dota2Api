@@ -35,8 +35,8 @@ public class Gateway {
 
     public String getForObject(String url) {
         String response = getForObject(url, String.class);
-        String serviceUnavailable503 = "503";
-        String timeOut504 = "504";
+        String serviceUnavailable503 = "503 Service Unavailable";
+        String timeOut504 = "504 Gateway Time-out";
         if (StringUtils.isBlank(response)) {
             throw new RuntimeException("由于503,504错误，暂停调用接口15分钟");
         } else if (response.contains(serviceUnavailable503) || response.contains(timeOut504)) {
