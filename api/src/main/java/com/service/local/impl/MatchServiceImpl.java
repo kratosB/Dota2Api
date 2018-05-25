@@ -28,6 +28,9 @@ import com.api.req.GetMatchHistoryReq;
 import com.dao.entity.Hero;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.util.JsonMapper;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Created on 2017/06/15.
@@ -136,6 +139,7 @@ public class MatchServiceImpl implements IMatchService {
     }
 
     @Override
+    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED, rollbackFor = Exception.class)
     public void updateMatchDetailByMatchId(Long matchId) {
         String response = steamMatchServiceImpl.getMatchDetailByMatchId(matchId);
         JsonNode jsonNode = JsonMapper.nonDefaultMapper().fromJson(response, JsonNode.class);

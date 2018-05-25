@@ -1,6 +1,7 @@
 package com.service.local.impl;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,6 +19,8 @@ import com.util.Gateway;
 import com.util.SteamIdConverter;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com.dao.PlayerDao;
@@ -130,26 +133,28 @@ public class PlayerServiceImpl implements IPlayerService {
             player = playerList.get(0);
         }
         // 根据选手信息，查询数据
-        List<MatchPlayer> matchPlayerList = matchPlayerDao.findAll(((root, query, cb) -> {
+        Specification<MatchPlayer> specification = (root, query, cb) -> {
             Root<MatchHistory> matchHistoryRoot = query.from(MatchHistory.class);
             Predicate predicate = cb.and(cb.equal(root.get("matchId"), matchHistoryRoot.get("matchId")),
                     cb.equal(root.get("accountId"), player.getDotaAccountId()));
-            int ranked = 7;
             if (playerWinRateReq.isRanked()) {
+                int ranked = 7;
                 predicate = cb.and(predicate, cb.equal(matchHistoryRoot.get("lobbyType"), ranked));
+            }
+            if (playerWinRateReq.getDuration() != 0) {
+                Long startTimeLong = System.currentTimeMillis() - playerWinRateReq.getDuration() * 86400 * 1000;
+                Date startDate = new Date(startTimeLong);
+                predicate = cb.and(predicate, cb.greaterThan(matchHistoryRoot.get("startTime"), startDate));
             }
             query.orderBy(cb.desc(matchHistoryRoot.get("matchId")));
             return predicate;
-        }));
-        if (playerWinRateReq.getSize() != 0) {
-            matchPlayerList = matchPlayerList.subList(0, playerWinRateReq.getSize());
+        };
+        List<MatchPlayer> matchPlayerList;
+        if (playerWinRateReq.getSize() > 0) {
+            matchPlayerList = matchPlayerDao.findAll(specification, new PageRequest(0, playerWinRateReq.getSize())).getContent();
+        } else {
+            matchPlayerList = matchPlayerDao.findAll(specification);
         }
-        // else if (playerWinRateReq.getDuration()!=0) {
-        // Date date = new Date();
-        // Long newdddd = date.getTime() - playerWinRateReq.getDuration() * 86400 *1000;
-        // Date newDate = new Date(newdddd);
-        // matchPlayerList.stream().filter(matchPlayer -> matchPlayer)
-        // }
         PlayerWinRateVo playerWinRateVo = new PlayerWinRateVo();
         playerWinRateVo.setPlayerName(player.getPersonaname());
         int winCount = matchPlayerList.stream().filter(matchPlayer -> matchPlayer.getWin() == 1).collect(Collectors.toList())

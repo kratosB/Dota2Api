@@ -34,7 +34,9 @@ public class Dota2Job {
 
     @Scheduled(fixedRate = 1000000)
     public void enableServiceAvailable() {
-        config.setServiceAvailable(true);
+        if (!config.isServiceAvailable()) {
+            config.setServiceAvailable(true);
+        }
     }
 
 }
