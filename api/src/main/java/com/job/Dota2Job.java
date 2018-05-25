@@ -1,6 +1,8 @@
 package com.job;
 
+import com.config.Config;
 import com.service.local.IMatchService;
+import com.util.Gateway;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -17,14 +19,22 @@ public class Dota2Job {
 
     private IMatchService matchServiceImpl;
 
+    private Config config;
+
     @Autowired
-    public Dota2Job(IMatchService matchServiceImpl) {
+    public Dota2Job(IMatchService matchServiceImpl,Config config) {
         this.matchServiceImpl = matchServiceImpl;
+        this.config = config;
     }
 
-    @Scheduled(fixedRate = 60000)
+    @Scheduled(fixedRate = 30000)
     public void updateMatchDetail() {
         matchServiceImpl.updateMatchDetailJob();
+    }
+
+    @Scheduled(fixedRate = 1000000)
+    public void enableServiceAvailable() {
+        config.setServiceAvailable(true);
     }
 
 }

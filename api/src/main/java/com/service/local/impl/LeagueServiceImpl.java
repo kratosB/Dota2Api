@@ -45,10 +45,10 @@ public class LeagueServiceImpl implements ILeagueService {
 
     @Override
     public LeaguesEntity listLeague() {
-        String getLeague = "GetLeagueListing/";
-        String getLeagueUrl = config.getIDota2Url() + getLeague + config.getApiVersion() + config.getApiLanguage()
+        String getLeagueListing = "GetLeagueListing/";
+        String getLeagueListingUrl = config.getIDota2Url() + getLeagueListing + config.getApiVersion() + config.getApiLanguage()
                 + config.getApiAnd();
-        String response = gateway.getForObject(getLeagueUrl);
+        String response = gateway.getForObject(getLeagueListingUrl);
         return JsonMapper.nonDefaultMapper().fromJson(response, LeaguesEntity.class);
     }
 

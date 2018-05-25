@@ -41,4 +41,10 @@ public class Config {
     @Value("${admin.steamId}")
     private String adminSteamId;
 
+    private boolean serviceAvailable;
+
+    public void setServiceAvailable(boolean serviceAvailable) {
+        this.serviceAvailable = serviceAvailable;
+    }
+
 }
