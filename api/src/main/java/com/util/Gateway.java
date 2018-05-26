@@ -1,10 +1,12 @@
 package com.util;
 
 import com.config.Config;
+import com.event.HttpServerErrorExceptionEvent;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
@@ -23,36 +25,51 @@ public class Gateway {
 
     private Config config;
 
+    private ApplicationEventPublisher applicationEventPublisher;
+
     private List<String> keyList;
 
     @Autowired
-    public Gateway(RestTemplate restTemplate, Config config) {
+    public Gateway(RestTemplate restTemplate, Config config, ApplicationEventPublisher applicationEventPublisher) {
         this.restTemplate = restTemplate;
         this.config = config;
+        this.applicationEventPublisher = applicationEventPublisher;
         keyList = new ArrayList<>(3);
         config.setServiceAvailable(true);
     }
 
     public String getForObject(String url) {
-        String response = getForObject(url, String.class);
-        String serviceUnavailable503 = "503 Service Unavailable";
-        String timeOut504 = "504 Gateway Time-out";
-        if (StringUtils.isBlank(response)) {
-            throw new RuntimeException("由于503,504错误，暂停调用接口15分钟");
-        } else if (response.contains(serviceUnavailable503) || response.contains(timeOut504)) {
-            config.setServiceAvailable(false);
-            throw new RuntimeException("发生503,504错误");
-        } else {
-            return response;
-        }
+        return getForObject(url, String.class);
     }
 
     private <T> T getForObject(String url, Class<T> clazz) {
         if (config.isServiceAvailable()) {
             url = url + getKey();
-            return restTemplate.getForObject(url, clazz);
+            try {
+                return restTemplate.getForObject(url, clazz);
+            } catch (HttpServerErrorException httpServerErrorException) {
+                String internalServerError500 = "500";
+                String serviceUnavailable503 = "503";
+                String timeOut504 = "504";
+                if (httpServerErrorException.getMessage().contains(internalServerError500)) {
+                    config.setServiceAvailable(false);
+                    applicationEventPublisher.publishEvent(new HttpServerErrorExceptionEvent(new Object()));
+                    throw new RuntimeException("发生500错误，url=" + url);
+                } else if (httpServerErrorException.getMessage().contains(serviceUnavailable503)) {
+                    config.setServiceAvailable(false);
+                    applicationEventPublisher.publishEvent(new HttpServerErrorExceptionEvent(new Object()));
+                    throw new RuntimeException("发生503错误，url=" + url);
+                } else if (httpServerErrorException.getMessage().contains(timeOut504)) {
+                    config.setServiceAvailable(false);
+                    applicationEventPublisher.publishEvent(new HttpServerErrorExceptionEvent(new Object()));
+                    throw new RuntimeException("发生504错误，url=" + url);
+                } else {
+                    log.error(httpServerErrorException.getLocalizedMessage());
+                    throw httpServerErrorException;
+                }
+            }
         } else {
-            return null;
+            throw new RuntimeException("由于503,504错误，暂停调用接口15分钟");
         }
     }
 

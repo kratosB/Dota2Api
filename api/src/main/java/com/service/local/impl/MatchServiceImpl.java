@@ -17,6 +17,7 @@ import com.dao.entity.MatchPlayer;
 import com.service.local.IHeroService;
 import com.service.local.IMatchService;
 import com.service.steam.ISteamMatchService;
+import com.util.MyJsonNode;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -144,7 +145,8 @@ public class MatchServiceImpl implements IMatchService {
         String response = steamMatchServiceImpl.getMatchDetailByMatchId(matchId);
         JsonNode jsonNode = JsonMapper.nonDefaultMapper().fromJson(response, JsonNode.class);
         // 解析并保存比赛结果
-        MatchHistory matchHistory = convertMatchNodeToMatchHistory(jsonNode);
+        MyJsonNode myMatchNode = new MyJsonNode(jsonNode);
+        MatchHistory matchHistory = convertMatchNodeToMatchHistory(myMatchNode);
         matchHistoryDao.save(matchHistory);
         // 查找matchPlayer表，看是否已经有相关数据存在，有的话更新，没有就新增
         List<MatchPlayer> matchPlayerList = matchPlayerDao.findByMatchId(matchId);
@@ -161,7 +163,8 @@ public class MatchServiceImpl implements IMatchService {
         JsonNode playersNode = jsonNode.findPath("players");
         Iterator<JsonNode> playerNodeList = playersNode.iterator();
         playerNodeList.forEachRemaining(node -> {
-            MatchPlayer matchPlayer = convertMatchPlayerNodeToMatchPlayer(node);
+            MyJsonNode myPlayerNode = new MyJsonNode(node);
+            MatchPlayer matchPlayer = convertMatchPlayerNodeToMatchPlayer(myPlayerNode);
             // 如果radiantWin是1（true），则playerSlot<10的选手（近卫）赢了，如果radiantWin是0（false），则playerSlot>10的选手（天灾）赢了，其余都是输
             boolean bool1 = matchHistory.getRadiantWin() == 1 && matchPlayer.getPlayerSlot() < 10;
             boolean bool2 = matchHistory.getRadiantWin() == 0 && matchPlayer.getPlayerSlot() > 10;
@@ -175,48 +178,51 @@ public class MatchServiceImpl implements IMatchService {
         matchPlayerDao.save(matchPlayerList);
     }
 
-    private MatchHistory convertMatchNodeToMatchHistory(JsonNode matchNode) {
+    private MatchHistory convertMatchNodeToMatchHistory(MyJsonNode matchNode) {
         MatchHistory matchHistory = new MatchHistory();
-        matchHistory.setMatchId(matchNode.findValue("match_id").asLong());
-        matchHistory.setRadiantWin(StringUtils.equals(matchNode.findValue("radiant_win").asText(), "true") ? 1 : 0);
-        matchHistory.setDuration(matchNode.findValue("duration").asInt());
-        matchHistory.setPreGameDuration(matchNode.findValue("pre_game_duration").asInt());
-        matchHistory.setStartTime(new Date(matchNode.findValue("start_time").asLong() * 1000));
-        matchHistory.setMatchSeqNum(matchNode.findValue("match_seq_num").asLong());
-        matchHistory.setTowerStatusRadiant(matchNode.findValue("tower_status_radiant").asInt());
-        matchHistory.setTowerStatusDire(matchNode.findValue("tower_status_dire").asInt());
-        matchHistory.setBarracksStatusRadiant(matchNode.findValue("barracks_status_radiant").asInt());
-        matchHistory.setBarracksStatusDire(matchNode.findValue("barracks_status_dire").asInt());
-        matchHistory.setCluster(matchNode.findValue("cluster").asInt());
-        matchHistory.setFirstBloodTime(matchNode.findValue("first_blood_time").asInt());
-        matchHistory.setLobbyType(matchNode.findValue("lobby_type").asInt());
-        matchHistory.setHumanPlayers(matchNode.findValue("human_players").asInt());
-        matchHistory.setLeagueId(matchNode.findValue("leagueid").asInt());
-        matchHistory.setPositiveVotes(matchNode.findValue("positive_votes").asInt());
-        matchHistory.setNegativeVotes(matchNode.findValue("negative_votes").asInt());
-        matchHistory.setGameMode(matchNode.findValue("game_mode").asInt());
-        matchHistory.setFlags(matchNode.findValue("flags").asInt());
-        matchHistory.setEngine(matchNode.findValue("engine").asInt());
-        matchHistory.setRadiantScore(matchNode.findValue("radiant_score").asInt());
-        matchHistory.setDireScore(matchNode.findValue("dire_score").asInt());
+        matchHistory.setMatchId(matchNode.findValueAsLong("match_id"));
+        matchHistory.setRadiantWin(StringUtils.equals(matchNode.findValueAsString("radiant_win"), "true") ? 1 : 0);
+        matchHistory.setDuration(matchNode.findValueAsInt("duration"));
+        matchHistory.setPreGameDuration(matchNode.findValueAsInt("pre_game_duration"));
+        matchHistory.setStartTime(new Date(matchNode.findValueAsLong("start_time") * 1000));
+        matchHistory.setMatchSeqNum(matchNode.findValueAsLong("match_seq_num"));
+        matchHistory.setTowerStatusRadiant(matchNode.findValueAsInt("tower_status_radiant"));
+        matchHistory.setTowerStatusDire(matchNode.findValueAsInt("tower_status_dire"));
+        matchHistory.setBarracksStatusRadiant(matchNode.findValueAsInt("barracks_status_radiant"));
+        matchHistory.setBarracksStatusDire(matchNode.findValueAsInt("barracks_status_dire"));
+        matchHistory.setCluster(matchNode.findValueAsInt("cluster"));
+        matchHistory.setFirstBloodTime(matchNode.findValueAsInt("first_blood_time"));
+        matchHistory.setLobbyType(matchNode.findValueAsInt("lobby_type"));
+        matchHistory.setHumanPlayers(matchNode.findValueAsInt("human_players"));
+        matchHistory.setLeagueId(matchNode.findValueAsInt("leagueid"));
+        matchHistory.setPositiveVotes(matchNode.findValueAsInt("positive_votes"));
+        matchHistory.setNegativeVotes(matchNode.findValueAsInt("negative_votes"));
+        matchHistory.setGameMode(matchNode.findValueAsInt("game_mode"));
+        matchHistory.setFlags(matchNode.findValueAsInt("flags"));
+        matchHistory.setEngine(matchNode.findValueAsInt("engine"));
+        matchHistory.setRadiantScore(matchNode.findValueAsInt("radiant_score"));
+        matchHistory.setDireScore(matchNode.findValueAsInt("dire_score"));
         String radiantTeamId = "radiant_team_id";
-        if (matchNode.findValue(radiantTeamId) != null) {
-            matchHistory.setRadiantTeamId(matchNode.findValue("radiant_team_id").asInt());
-            matchHistory.setRadiantName(matchNode.findValue("radiant_name").asText());
-            matchHistory.setRadiantLogo(matchNode.findValue("radiant_logo").asLong());
-            matchHistory.setRadiantTeamComplete(matchNode.findValue("radiant_team_complete").asInt());
-            matchHistory.setRadiantCaptain(matchNode.findValue("radiant_captain").asLong());
+        if (matchNode.getJsonNode().findValue(radiantTeamId) != null) {
+            matchHistory.setRadiantTeamId(matchNode.findValueAsInt("radiant_team_id"));
+            matchHistory.setRadiantName(matchNode.findValueAsString("radiant_name"));
+            matchHistory.setRadiantLogo(matchNode.findValueAsLong("radiant_logo"));
+            matchHistory.setRadiantTeamComplete(matchNode.findValueAsInt("radiant_team_complete"));
+            matchHistory.setRadiantCaptain(matchNode.findValueAsLong("radiant_captain"));
         }
         String direTeamId = "dire_team_id";
-        if (matchNode.findValue(direTeamId) != null) {
-            matchHistory.setDireTeamId(matchNode.findValue("dire_team_id").asInt());
-            matchHistory.setDireName(matchNode.findValue("dire_name").asText());
-            matchHistory.setDireLogo(matchNode.findValue("dire_logo").asLong());
-            matchHistory.setDireTeamComplete(matchNode.findValue("dire_team_complete").asInt());
-            matchHistory.setDireCaptain(matchNode.findValue("dire_captain").asLong());
+        if (matchNode.getJsonNode().findValue(direTeamId) != null) {
+            matchHistory.setDireTeamId(matchNode.findValueAsInt("dire_team_id"));
+            matchHistory.setDireName(matchNode.findValueAsString("dire_name"));
+            matchHistory.setDireLogo(matchNode.findValueAsLong("dire_logo"));
+            matchHistory.setDireTeamComplete(matchNode.findValueAsInt("dire_team_complete"));
+            matchHistory.setDireCaptain(matchNode.findValueAsLong("dire_captain"));
         }
-        matchHistory.setPicksBans(matchNode.findValue("picks_bans") == null ? null
-                : JsonMapper.nonDefaultMapper().toJson(matchNode.findValue("picks_bans")));
+        matchHistory.setPicksBans(matchNode.getJsonNode().findValue("picks_bans") == null ? null
+                : JsonMapper.nonDefaultMapper()
+                        .toJson(matchNode.getJsonNode().findValue("picks_bans") != null
+                                ? matchNode.getJsonNode().findValue("picks_bans")
+                                : ""));
         if (matchHistory.getCreatedTime() == null) {
             matchHistory.setCreatedTime(new Date());
         }
@@ -224,51 +230,42 @@ public class MatchServiceImpl implements IMatchService {
         return matchHistory;
     }
 
-    private MatchPlayer convertMatchPlayerNodeToMatchPlayer(JsonNode matchPlayerNode) {
+    private MatchPlayer convertMatchPlayerNodeToMatchPlayer(MyJsonNode matchPlayerNode) {
         MatchPlayer matchPlayer = new MatchPlayer();
         // 当联机打ai的时候，对面ai玩家没有account_id的
-        matchPlayer.setAccountId(
-                matchPlayerNode.findValue("account_id") != null ? matchPlayerNode.findValue("account_id").asLong() : 0L);
-        matchPlayer.setPlayerSlot(matchPlayerNode.findValue("player_slot").asInt());
-        matchPlayer.setHeroId(matchPlayerNode.findValue("hero_id").asInt());
-        matchPlayer.setItem0(matchPlayerNode.findValue("item_0").asInt());
-        matchPlayer.setItem1(matchPlayerNode.findValue("item_1").asInt());
-        matchPlayer.setItem2(matchPlayerNode.findValue("item_2").asInt());
-        matchPlayer.setItem3(matchPlayerNode.findValue("item_3").asInt());
-        matchPlayer.setItem4(matchPlayerNode.findValue("item_4").asInt());
-        matchPlayer.setItem5(matchPlayerNode.findValue("item_5").asInt());
-        matchPlayer.setBackpack0(matchPlayerNode.findValue("backpack_0").asInt());
-        matchPlayer.setBackpack1(matchPlayerNode.findValue("backpack_1").asInt());
-        matchPlayer.setBackpack2(matchPlayerNode.findValue("backpack_2").asInt());
-        matchPlayer.setKills(matchPlayerNode.findValue("kills").asInt());
-        matchPlayer.setDeaths(matchPlayerNode.findValue("deaths").asInt());
-        matchPlayer.setAssists(matchPlayerNode.findValue("assists").asInt());
-        matchPlayer.setLeaverStatus(matchPlayerNode.findValue("leaver_status").asInt());
-        matchPlayer.setLastHits(matchPlayerNode.findValue("last_hits").asInt());
-        matchPlayer.setDenies(matchPlayerNode.findValue("denies").asInt());
-        matchPlayer.setGoldPerMin(matchPlayerNode.findValue("gold_per_min").asInt());
-        matchPlayer.setXpPerMin(matchPlayerNode.findValue("xp_per_min").asInt());
-        matchPlayer.setLevel(matchPlayerNode.findValue("level").asInt());
-        matchPlayer.setHeroDamage(
-                matchPlayerNode.findValue("hero_damage") != null ? matchPlayerNode.findValue("hero_damage").asInt() : 0);
-        matchPlayer.setTowerDamage(
-                matchPlayerNode.findValue("tower_damage") != null ? matchPlayerNode.findValue("tower_damage").asInt() : 0);
-        matchPlayer.setHeroHealing(
-                matchPlayerNode.findValue("hero_healing") != null ? matchPlayerNode.findValue("hero_healing").asInt() : 0);
-        matchPlayer.setGold(matchPlayerNode.findValue("gold") != null ? matchPlayerNode.findValue("gold").asInt() : 0);
-        matchPlayer.setGoldSpent(
-                matchPlayerNode.findValue("gold_spent") != null ? matchPlayerNode.findValue("gold_spent").asInt() : 0);
-        matchPlayer.setScaledHeroDamage(
-                matchPlayerNode.findValue("scaled_hero_damage") != null ? matchPlayerNode.findValue("scaled_hero_damage").asInt()
-                        : 0);
-        matchPlayer.setScaledTowerDamage(
-                matchPlayerNode.findValue("scaled_tower_damage") != null ? matchPlayerNode.findValue("scaled_tower_damage").asInt()
-                        : 0);
-        matchPlayer.setScaledHeroHealing(
-                matchPlayerNode.findValue("scaled_hero_healing") != null ? matchPlayerNode.findValue("scaled_hero_healing").asInt()
-                        : 0);
-        matchPlayer.setAbilityUpgrades(JsonMapper.nonDefaultMapper().toJson(
-                matchPlayerNode.findValue("ability_upgrades") != null ? matchPlayerNode.findValue("ability_upgrades") : ""));
+        matchPlayer.setAccountId(matchPlayerNode.findValueAsLong("account_id"));
+        matchPlayer.setPlayerSlot(matchPlayerNode.findValueAsInt("player_slot"));
+        matchPlayer.setHeroId(matchPlayerNode.findValueAsInt("hero_id"));
+        matchPlayer.setItem0(matchPlayerNode.findValueAsInt("item_0"));
+        matchPlayer.setItem1(matchPlayerNode.findValueAsInt("item_1"));
+        matchPlayer.setItem2(matchPlayerNode.findValueAsInt("item_2"));
+        matchPlayer.setItem3(matchPlayerNode.findValueAsInt("item_3"));
+        matchPlayer.setItem4(matchPlayerNode.findValueAsInt("item_4"));
+        matchPlayer.setItem5(matchPlayerNode.findValueAsInt("item_5"));
+        matchPlayer.setBackpack0(matchPlayerNode.findValueAsInt("backpack_0"));
+        matchPlayer.setBackpack1(matchPlayerNode.findValueAsInt("backpack_1"));
+        matchPlayer.setBackpack2(matchPlayerNode.findValueAsInt("backpack_2"));
+        matchPlayer.setKills(matchPlayerNode.findValueAsInt("kills"));
+        matchPlayer.setDeaths(matchPlayerNode.findValueAsInt("deaths"));
+        matchPlayer.setAssists(matchPlayerNode.findValueAsInt("assists"));
+        matchPlayer.setLeaverStatus(matchPlayerNode.findValueAsInt("leaver_status"));
+        matchPlayer.setLastHits(matchPlayerNode.findValueAsInt("last_hits"));
+        matchPlayer.setDenies(matchPlayerNode.findValueAsInt("denies"));
+        matchPlayer.setGoldPerMin(matchPlayerNode.findValueAsInt("gold_per_min"));
+        matchPlayer.setXpPerMin(matchPlayerNode.findValueAsInt("xp_per_min"));
+        matchPlayer.setLevel(matchPlayerNode.findValueAsInt("level"));
+        matchPlayer.setHeroDamage(matchPlayerNode.findValueAsInt("hero_damage"));
+        matchPlayer.setTowerDamage(matchPlayerNode.findValueAsInt("tower_damage"));
+        matchPlayer.setHeroHealing(matchPlayerNode.findValueAsInt("hero_healing"));
+        matchPlayer.setGold(matchPlayerNode.findValueAsInt("gold"));
+        matchPlayer.setGoldSpent(matchPlayerNode.findValueAsInt("gold_spent"));
+        matchPlayer.setScaledHeroDamage(matchPlayerNode.findValueAsInt("scaled_hero_damage"));
+        matchPlayer.setScaledTowerDamage(matchPlayerNode.findValueAsInt("scaled_tower_damage"));
+        matchPlayer.setScaledHeroHealing(matchPlayerNode.findValueAsInt("scaled_hero_healing"));
+        matchPlayer.setAbilityUpgrades(JsonMapper.nonDefaultMapper()
+                .toJson(matchPlayerNode.getJsonNode().findValue("ability_upgrades") != null
+                        ? matchPlayerNode.getJsonNode().findValue("ability_upgrades")
+                        : ""));
         return matchPlayer;
     }
 
