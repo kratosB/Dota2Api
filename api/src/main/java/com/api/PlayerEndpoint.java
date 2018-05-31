@@ -6,6 +6,7 @@ import com.api.vo.PlayerWinRateVo;
 import com.config.Config;
 import com.dao.entity.Player;
 import com.service.local.IPlayerService;
+import com.util.SteamIdConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,7 +28,7 @@ import java.util.List;
 @RestController
 public class PlayerEndpoint {
 
-    Logger logger = LoggerFactory.getLogger(PlayerEndpoint.class);
+    private Logger logger = LoggerFactory.getLogger(PlayerEndpoint.class);
 
     private IPlayerService playerServiceImpl;
 
@@ -45,6 +46,8 @@ public class PlayerEndpoint {
         logger.info("开始从steam，根据steamId更新player的数据，steamId={}", steamId);
         if (steamId == null) {
             steamId = config.getAdminSteamId();
+        } else {
+            steamId = SteamIdConverter.defaultInstance().getId64(steamId);
         }
         playerServiceImpl.updatePlayerDataBySteamId(steamId);
         logger.info("结束从steam，根据steamId更新player的数据，steamId={}", steamId);
@@ -57,6 +60,8 @@ public class PlayerEndpoint {
         logger.info("开始从steam，根据steamId更新player的friend数据，steamId={}", steamId);
         if (steamId == null) {
             steamId = config.getAdminSteamId();
+        } else {
+            steamId = SteamIdConverter.defaultInstance().getId64(steamId);
         }
         playerServiceImpl.updateFriendDataBySteamId(steamId);
         logger.info("结束从steam，根据steamId更新player的friend数据，steamId={}", steamId);
