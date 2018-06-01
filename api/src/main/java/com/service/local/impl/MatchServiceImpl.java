@@ -18,6 +18,7 @@ import com.service.local.IHeroService;
 import com.service.local.IMatchService;
 import com.service.steam.ISteamMatchService;
 import com.util.MyJsonNode;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -38,6 +39,7 @@ import org.springframework.transaction.annotation.Transactional;
  * 
  * @author zhiqiang bao
  */
+@Slf4j
 @Service
 public class MatchServiceImpl implements IMatchService {
 
@@ -143,6 +145,11 @@ public class MatchServiceImpl implements IMatchService {
     @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED, rollbackFor = Exception.class)
     public void updateMatchDetailByMatchId(Long matchId) {
         String response = steamMatchServiceImpl.getMatchDetailByMatchId(matchId);
+        String matchIdNotFound = "Match ID not found";
+        if (response.contains(matchIdNotFound)) {
+            log.warn("找不到对应matchId={}的比赛数据，更新matchHistory失败",matchId);
+            return;
+        }
         JsonNode jsonNode = JsonMapper.nonDefaultMapper().fromJson(response, JsonNode.class);
         // 解析并保存比赛结果
         MyJsonNode myMatchNode = new MyJsonNode(jsonNode);
