@@ -57,7 +57,7 @@ public class SteamHeroItemServiceImpl implements ISteamHeroItemService {
         heroNodes.forEach(heroNode -> {
             int heroId = heroNode.findValue("id").asInt();
             if (heroIdList.contains(heroId)) {
-                Hero hero = heroDao.findOne(heroId);
+                Hero hero = heroDao.getOne(heroId);
                 hero.setName(heroNode.findValue("name").asText());
                 hero.setLocalizedName(heroNode.findValue("localized_name").asText());
                 updateList.add(hero);
@@ -88,7 +88,7 @@ public class SteamHeroItemServiceImpl implements ISteamHeroItemService {
         itemNodes.forEach(itemNode -> {
             int itemId = itemNode.findValue("id").asInt();
             if (itemIdList.contains(itemId)) {
-                Item hero = itemDao.findOne(itemId);
+                Item hero = itemDao.getOne(itemId);
                 hero.setName(itemNode.findValue("name").asText());
                 hero.setLocalizedName(itemNode.findValue("localized_name").asText());
                 updateList.add(hero);

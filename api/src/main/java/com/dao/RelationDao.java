@@ -13,5 +13,12 @@ import java.util.List;
  */
 public interface RelationDao extends JpaRepository<Relation, Integer>, JpaSpecificationExecutor<Relation> {
 
-    List<Relation> findBySteamIdAndAndFriendIdIn(String steamId, List<String> friendIdList);
+    /**
+     * 获取steamId的所有好友的数据
+     * 
+     * @param steamId
+     *            用户id
+     * @return 好友关系列表
+     */
+    List<Relation> findBySteamId(String steamId);
 }

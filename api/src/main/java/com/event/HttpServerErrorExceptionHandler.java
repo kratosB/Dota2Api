@@ -3,6 +3,7 @@ package com.event;
 import com.config.Config;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -23,6 +24,7 @@ public class HttpServerErrorExceptionHandler {
     }
 
     @EventListener
+    @Async
     public void enableGateway(final HttpServerErrorExceptionEvent httpServerErrorExceptionEvent) {
         log.warn(new Date() + "，事件被触发，此时ServiceAvailable={}", config.isServiceAvailable());
         try {

@@ -30,6 +30,7 @@ import com.util.JsonMapper;
 
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Subquery;
 
 /**
  * Created on 2018/3/28.
@@ -74,8 +75,13 @@ public class PlayerServiceImpl implements IPlayerService {
         JsonNode jsonNodes = JsonMapper.nonDefaultMapper().fromJson(response, JsonNode.class);
         JsonNode friendNodes = jsonNodes.findPath("friends");
         StringBuilder steamIdsBuilder = new StringBuilder();
-        friendNodes.forEach(friendNode -> steamIdsBuilder.append(friendNode.findValue("steamid").asText()).append(","));
+        List<String> friendIdList = new ArrayList<>();
+        friendNodes.forEach(friendNode -> {
+            steamIdsBuilder.append(friendNode.findValue("steamid").asText()).append(",");
+            friendIdList.add(friendNode.findValue("steamid").asText());
+        });
         updatePlayerData(steamIdsBuilder.substring(0, steamIdsBuilder.length() - 1));
+        updateRelation(steamId, friendIdList);
     }
 
     @Override
@@ -132,15 +138,66 @@ public class PlayerServiceImpl implements IPlayerService {
         } else {
             player = playerList.get(0);
         }
+        // 是不是单排，0表示无所谓单排组排
+        int teamStatus = playerWinRateReq.getTeamStatus();
+        List<String> groupMatchIdList = new ArrayList<>();
+        if (teamStatus != 0) {
+            List<MatchPlayer> matchPlayerList = matchPlayerDao.findAll(((root, query, cb) -> {
+                Root<MatchHistory> matchHistoryRoot = query.from(MatchHistory.class);
+                Predicate predicate = cb.and(cb.equal(root.get("matchId"), matchHistoryRoot.get("matchId")),
+                        cb.equal(root.get("accountId"), player.getDotaAccountId()));
+                // 是不是天梯
+                if (playerWinRateReq.isRanked()) {
+                    int ranked = 7;
+                    predicate = cb.and(predicate, cb.equal(matchHistoryRoot.get("lobbyType"), ranked));
+                }
+                // 时间，最近多少天
+                if (playerWinRateReq.getDuration() != 0) {
+                    Long startTimeLong = System.currentTimeMillis() - playerWinRateReq.getDuration() * 86400 * 1000;
+                    Date startDate = new Date(startTimeLong);
+                    predicate = cb.and(predicate, cb.greaterThan(matchHistoryRoot.get("startTime"), startDate));
+                }
+                query.orderBy(cb.desc(matchHistoryRoot.get("matchId")));
+                return predicate;
+            }));
+            Subquery<String> groupMatchIdQuery = query.subquery(String.class);
+            Root<MatchPlayer> matchPlayerRoot1 = groupMatchIdQuery.from(MatchPlayer.class);
+            Root<MatchPlayer> matchPlayerRoot2 = groupMatchIdQuery.from(MatchPlayer.class);
+            Root<Player> playerRoot = groupMatchIdQuery.from(Player.class);
+            groupMatchIdQuery.where(cb.equal(matchPlayerRoot1.get("matchId"), matchPlayerRoot2.get("matchId")));
+            groupMatchIdQuery.where(cb.equal(matchPlayerRoot2.get("accountId"), player.getDotaAccountId()));
+            // TODO 这个地方，稍后楼可以换成relation。现在的sql语句是：SELECT DISTINCT p1.match_id FROM
+            // match_player p1, match_player p2, player pl1 WHERE p1.match_id = p2.match_id
+            // AND p2.account_id = '127990273' AND p1.account_id = pl1.dota_account_id AND
+            // pl1.dota_account_id <> '127990273';
+            groupMatchIdQuery.where(cb.equal(matchPlayerRoot1.get("accountId"), playerRoot.get("dotaAccountId")));
+            groupMatchIdQuery.where(cb.notEqual(playerRoot.get("dotaAccountId"), player.getDotaAccountId()));
+            groupMatchIdQuery.select(matchPlayerRoot1.get("matchId"));
+            groupMatchIdQuery.distinct(true);
+            // subQuery是组排的matchIdList，1是单排，所以是notIn，2是组排，所以是in
+            int individual = 1;
+            int group = 2;
+            if (teamStatus == individual) {
+                predicate = cb.and(predicate, cb.not(root.get("matchId").in(groupMatchIdQuery)));
+            } else if (teamStatus == group) {
+                predicate = cb.and(predicate, root.get("matchId").in(groupMatchIdQuery));
+            } else {
+                throw new RuntimeException("getPlayerWinRate查询数据库参数错误，teamStatus=" + teamStatus);
+            }
+        }
+
+
         // 根据选手信息，查询数据
         Specification<MatchPlayer> specification = (root, query, cb) -> {
             Root<MatchHistory> matchHistoryRoot = query.from(MatchHistory.class);
             Predicate predicate = cb.and(cb.equal(root.get("matchId"), matchHistoryRoot.get("matchId")),
                     cb.equal(root.get("accountId"), player.getDotaAccountId()));
+            // 是不是天梯
             if (playerWinRateReq.isRanked()) {
                 int ranked = 7;
                 predicate = cb.and(predicate, cb.equal(matchHistoryRoot.get("lobbyType"), ranked));
             }
+            // 时间，最近多少天
             if (playerWinRateReq.getDuration() != 0) {
                 Long startTimeLong = System.currentTimeMillis() - playerWinRateReq.getDuration() * 86400 * 1000;
                 Date startDate = new Date(startTimeLong);
@@ -168,9 +225,21 @@ public class PlayerServiceImpl implements IPlayerService {
         return playerWinRateVo;
     }
 
-    public void updateRelation(String steamId, List<String> friendIdList) {
-        List<Relation> relationList = relationDao.findBySteamIdAndAndFriendIdIn(steamId, friendIdList);
-        // TODO
+    private void updateRelation(String steamId, List<String> friendIdList) {
+        List<Relation> newRelationList = new ArrayList<>();
+        List<Relation> relationList = relationDao.findBySteamId(steamId);
+        List<String> existedFriendIdList = relationList.stream().map(Relation::getFriendId).collect(Collectors.toList());
+        friendIdList.stream().filter(friendId -> !existedFriendIdList.contains(friendId)).forEach(friendId -> {
+            Relation relation1 = new Relation();
+            relation1.setSteamId(steamId);
+            relation1.setFriendId(friendId);
+            newRelationList.add(relation1);
+            Relation relation2 = new Relation();
+            relation2.setSteamId(friendId);
+            relation2.setFriendId(steamId);
+            newRelationList.add(relation2);
+        });
+        relationDao.save(newRelationList);
     }
 
     private void updatePlayerData(String steamIds) {
