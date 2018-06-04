@@ -69,8 +69,6 @@ public class MatchEndpoint {
         logger.info("结束从steam，根据比赛steamId，批量更新比赛Id，steamId = {}", steamId);
     }
 
-    // http://api.steampowered.com/IDOTA2Match_570/GetMatchHistory/v1/?key=EFA1E81676FCC47157EA871A67741EF5&account_id=76561198088256001&hero_id=71&start_at_match_id=1848644028
-
     @ApiOperation("从steam获取某场比赛的具体信息")
     @GetMapping(value = "/api/match/steam/getMatchDetailByMatchId")
     public String getMatchDetailByMatchId(

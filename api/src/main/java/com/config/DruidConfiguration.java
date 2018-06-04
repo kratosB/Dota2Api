@@ -42,7 +42,8 @@ public class DruidConfiguration {
             @Value("${spring.datasource.url}") String url, @Value("${spring.datasource.username}") String username,
             @Value("${spring.datasource.password}") String password) {
         DruidDataSource druidDataSource = new DruidDataSource();
-        if (url.contains("mysql")) {
+        String mysql = "mysql";
+        if (url.contains(mysql)) {
             druidDataSource.setDbType("mysql");
         }
 
