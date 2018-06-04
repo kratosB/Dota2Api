@@ -15,7 +15,7 @@ public interface IMatchService {
      * @param steamId
      *            用户id
      */
-    void updateMatchId(String steamId);
+    void updateMatchIdBySteamId(String steamId);
 
     /**
      * 供job调用，每次调用这个接口，会从matchHistory中获取一个updateTime是null的数据，获取matchId，然后从steam查询对应的比赛数据，更新到本地数据库

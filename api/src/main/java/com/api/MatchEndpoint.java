@@ -57,15 +57,15 @@ public class MatchEndpoint {
     }
 
     @ApiOperation("从steam，根据steamId，批量更新比赛Id")
-    @GetMapping(value = "/api/match/steam/updateMatchId")
-    public void updateMatchId(@ApiParam(name = "steamId") @RequestParam(name = "steamId", required = false) String steamId) {
+    @GetMapping(value = "/api/match/steam/updateMatchIdBySteamId")
+    public void updateMatchIdBySteamId(@ApiParam(name = "steamId") @RequestParam(name = "steamId", required = false) String steamId) {
         logger.info("开始从steam，根据比赛steamId，批量更新比赛Id，steamId = {}", steamId);
         if (steamId == null) {
             steamId = config.getAdminSteamId();
         }else {
             steamId = SteamIdConverter.defaultInstance().getId64(steamId);
         }
-        matchServiceImpl.updateMatchId(steamId);
+        matchServiceImpl.updateMatchIdBySteamId(steamId);
         logger.info("结束从steam，根据比赛steamId，批量更新比赛Id，steamId = {}", steamId);
     }
 
@@ -81,7 +81,7 @@ public class MatchEndpoint {
         return matchDetail;
     }
 
-    @ApiOperation("从steam，根据英雄id，获取所有比赛的比赛id")
+    @ApiOperation("从steam，根据steamId和英雄id，获取所有比赛的比赛id")
     @GetMapping(value = "/api/match/steam/getMatchIdBySteamIdAndHeroId")
     public List<Long> getMatchIdBySteamIdAndHeroId(
             @ApiParam(name = "steamId") @RequestParam(name = "steamId", required = false) String steamId,

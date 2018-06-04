@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:mysql://t3.db.dcfservice.com:3306/dcf_customer?characterEncoding=utf8&cacheServerConfiguration=true&zeroDateTimeBehavior=convertToNull&autoReconnect=true&autoReconnectForPools=true&allowMultiQueries=true
+    url: jdbc:mysql://127.0.0.1:3306/dcf_customer?characterEncoding=utf8&cacheServerConfiguration=true&zeroDateTimeBehavior=convertToNull&autoReconnect=true&autoReconnectForPools=true&allowMultiQueries=true
     username: root
     password: dcf2014
     driver-class-name: com.mysql.jdbc.Driver

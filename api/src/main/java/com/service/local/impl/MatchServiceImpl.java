@@ -61,7 +61,7 @@ public class MatchServiceImpl implements IMatchService {
     }
 
     @Override
-    public void updateMatchId(String steamId) {
+    public void updateMatchIdBySteamId(String steamId) {
         List<Long> matchIdList = new ArrayList<>(50);
         List<Hero> heroList = heroServiceImpl.listAll();
         List<Integer> heroIdList = heroList.stream().map(Hero::getId).collect(Collectors.toList());
