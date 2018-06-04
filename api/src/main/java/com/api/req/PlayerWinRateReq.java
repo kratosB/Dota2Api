@@ -28,4 +28,7 @@ public class PlayerWinRateReq {
 
     @ApiModelProperty("是不是天梯比赛")
     private boolean ranked;
+
+    @ApiModelProperty("组队状态，0-不考虑，1-单排，2-组排")
+    private int teamStatus = 0;
 }
