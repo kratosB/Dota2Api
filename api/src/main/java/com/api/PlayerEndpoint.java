@@ -1,5 +1,15 @@
 package com.api;
 
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.api.req.GetPlayerInfoReq;
 import com.api.req.PlayerWinRateReq;
 import com.api.vo.PlayerWinRateVo;
@@ -7,18 +17,9 @@ import com.config.Config;
 import com.dao.entity.Player;
 import com.service.local.IPlayerService;
 import com.util.SteamIdConverter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-
-import java.util.List;
 
 /**
  * Created on 2018/3/28.
@@ -69,7 +70,7 @@ public class PlayerEndpoint {
 
     @ApiOperation("查找选手")
     @PostMapping(value = "/api/player/getPlayerInfo")
-    public List<Player> getPlayerInfo(@RequestBody GetPlayerInfoReq getPlayerInfoReq) {
+    public List<Player> getPlayerInfo(@ModelAttribute GetPlayerInfoReq getPlayerInfoReq) {
         logger.info("开始查找选手，getPlayerInfoReq = {}", getPlayerInfoReq);
         List<Player> playerList = playerServiceImpl.getPlayerInfo(getPlayerInfoReq);
         logger.info("结束查找选手，playerList.size = {}", playerList.size());
@@ -78,7 +79,7 @@ public class PlayerEndpoint {
 
     @ApiOperation("获取玩家胜率")
     @PostMapping(value = "/api/player/getPlayerWinRate")
-    public PlayerWinRateVo getPlayerWinRate(@RequestBody PlayerWinRateReq playerWinRateReq) {
+    public PlayerWinRateVo getPlayerWinRate(@ModelAttribute PlayerWinRateReq playerWinRateReq) {
         logger.info("开始获取玩家胜率，playerWinRateReq = {}", playerWinRateReq);
         PlayerWinRateVo playerWinRateVo = playerServiceImpl.getPlayerWinRate(playerWinRateReq);
         logger.info("结束获取玩家胜率，playerWinRateVo = {}", playerWinRateVo);

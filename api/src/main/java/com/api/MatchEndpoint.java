@@ -41,7 +41,7 @@ public class MatchEndpoint {
 
     @ApiOperation("从steam获取比赛历史")
     @PostMapping(value = "/api/match/steam/getMatchHistory")
-    public String getMatchHistory(@RequestBody GetMatchHistoryReq getMatchHistoryReq) {
+    public String getMatchHistory(@ModelAttribute GetMatchHistoryReq getMatchHistoryReq) {
         logger.info("开始从steam获取比赛历史，getMatchHistoryReq = {}", getMatchHistoryReq);
         String matchHistory = steamMatchServiceImpl.getMatchHistory(getMatchHistoryReq);
         logger.info("结束从steam获取比赛历史，matchHistory.length = {}", matchHistory.length());
