@@ -5,32 +5,31 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.api.req.GetPlayerInfoReq;
-import com.api.req.PlayerWinRateReq;
-import com.api.vo.PlayerWinRateVo;
-import com.config.Config;
-import com.dao.MatchPlayerDao;
-import com.dao.RelationDao;
-import com.dao.entity.MatchHistory;
-import com.dao.entity.MatchPlayer;
-import com.dao.entity.Relation;
-import com.service.local.IPlayerService;
-import com.util.Gateway;
-import com.util.SteamIdConverter;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import com.api.req.GetPlayerInfoReq;
+import com.api.req.PlayerWinRateReq;
+import com.api.vo.PlayerWinRateVo;
+import com.config.Config;
+import com.dao.MatchPlayerDao;
 import com.dao.PlayerDao;
+import com.dao.RelationDao;
+import com.dao.entity.MatchHistory;
+import com.dao.entity.MatchPlayer;
 import com.dao.entity.Player;
+import com.dao.entity.Relation;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.service.local.IPlayerService;
+import com.util.Gateway;
 import com.util.JsonMapper;
-
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
-import javax.persistence.criteria.Subquery;
+import com.util.SteamIdConverter;
 
 /**
  * Created on 2018/3/28.
@@ -104,7 +103,7 @@ public class PlayerServiceImpl implements IPlayerService {
                 if (StringUtils.isNotBlank(playerName)) {
                     predicates.add(cb.like(root.get("personaname"), "%" + playerName + "%"));
                 }
-                return cb.and(predicates.toArray(new Predicate[predicates.size()]));
+                return cb.and(predicates.toArray(new Predicate[0]));
             }));
         }
         return playerList;
@@ -138,60 +137,32 @@ public class PlayerServiceImpl implements IPlayerService {
         } else {
             player = playerList.get(0);
         }
-        // 是不是单排，0表示无所谓单排组排
+        String dotaAccountId = player.getDotaAccountId();
+        // 判断是不是单排，0表示无所谓单排组排。1是单排，2是组排。
+        int individual = 1;
+        int group = 2;
         int teamStatus = playerWinRateReq.getTeamStatus();
-        List<String> groupMatchIdList = new ArrayList<>();
-        if (teamStatus != 0) {
-            List<MatchPlayer> matchPlayerList = matchPlayerDao.findAll(((root, query, cb) -> {
-                Root<MatchHistory> matchHistoryRoot = query.from(MatchHistory.class);
-                Predicate predicate = cb.and(cb.equal(root.get("matchId"), matchHistoryRoot.get("matchId")),
-                        cb.equal(root.get("accountId"), player.getDotaAccountId()));
-                // 是不是天梯
-                if (playerWinRateReq.isRanked()) {
-                    int ranked = 7;
-                    predicate = cb.and(predicate, cb.equal(matchHistoryRoot.get("lobbyType"), ranked));
-                }
-                // 时间，最近多少天
-                if (playerWinRateReq.getDuration() != 0) {
-                    Long startTimeLong = System.currentTimeMillis() - playerWinRateReq.getDuration() * 86400 * 1000;
-                    Date startDate = new Date(startTimeLong);
-                    predicate = cb.and(predicate, cb.greaterThan(matchHistoryRoot.get("startTime"), startDate));
-                }
-                query.orderBy(cb.desc(matchHistoryRoot.get("matchId")));
-                return predicate;
-            }));
-            Subquery<String> groupMatchIdQuery = query.subquery(String.class);
-            Root<MatchPlayer> matchPlayerRoot1 = groupMatchIdQuery.from(MatchPlayer.class);
-            Root<MatchPlayer> matchPlayerRoot2 = groupMatchIdQuery.from(MatchPlayer.class);
-            Root<Player> playerRoot = groupMatchIdQuery.from(Player.class);
-            groupMatchIdQuery.where(cb.equal(matchPlayerRoot1.get("matchId"), matchPlayerRoot2.get("matchId")));
-            groupMatchIdQuery.where(cb.equal(matchPlayerRoot2.get("accountId"), player.getDotaAccountId()));
+        List<Long> groupMatchIdList = new ArrayList<>();
+        if (teamStatus == individual || teamStatus == group) {
             // TODO 这个地方，稍后楼可以换成relation。现在的sql语句是：SELECT DISTINCT p1.match_id FROM
             // match_player p1, match_player p2, player pl1 WHERE p1.match_id = p2.match_id
             // AND p2.account_id = '127990273' AND p1.account_id = pl1.dota_account_id AND
             // pl1.dota_account_id <> '127990273';
-            groupMatchIdQuery.where(cb.equal(matchPlayerRoot1.get("accountId"), playerRoot.get("dotaAccountId")));
-            groupMatchIdQuery.where(cb.notEqual(playerRoot.get("dotaAccountId"), player.getDotaAccountId()));
-            groupMatchIdQuery.select(matchPlayerRoot1.get("matchId"));
-            groupMatchIdQuery.distinct(true);
-            // subQuery是组排的matchIdList，1是单排，所以是notIn，2是组排，所以是in
-            int individual = 1;
-            int group = 2;
-            if (teamStatus == individual) {
-                predicate = cb.and(predicate, cb.not(root.get("matchId").in(groupMatchIdQuery)));
-            } else if (teamStatus == group) {
-                predicate = cb.and(predicate, root.get("matchId").in(groupMatchIdQuery));
-            } else {
-                throw new RuntimeException("getPlayerWinRate查询数据库参数错误，teamStatus=" + teamStatus);
-            }
+            List<String> friendIdList = playerDao.findAll().stream()
+                    .filter(thisPlayer -> !StringUtils.equals(thisPlayer.getDotaAccountId(), dotaAccountId))
+                    .map(Player::getDotaAccountId).collect(Collectors.toList());
+            List<MatchPlayer> groupMatchList = matchPlayerDao.findAll(((root, query, cb) -> {
+                Root<MatchPlayer> matchPlayerRoot = query.from(MatchPlayer.class);
+                return cb.and(cb.equal(root.get("matchId"), matchPlayerRoot.get("matchId")),
+                        cb.equal(matchPlayerRoot.get("accountId"), dotaAccountId), root.get("accountId").in(friendIdList));
+            }));
+            groupMatchIdList.addAll(groupMatchList.stream().map(MatchPlayer::getMatchId).distinct().collect(Collectors.toList()));
         }
-
-
         // 根据选手信息，查询数据
         Specification<MatchPlayer> specification = (root, query, cb) -> {
             Root<MatchHistory> matchHistoryRoot = query.from(MatchHistory.class);
             Predicate predicate = cb.and(cb.equal(root.get("matchId"), matchHistoryRoot.get("matchId")),
-                    cb.equal(root.get("accountId"), player.getDotaAccountId()));
+                    cb.equal(root.get("accountId"), dotaAccountId));
             // 是不是天梯
             if (playerWinRateReq.isRanked()) {
                 int ranked = 7;
@@ -202,6 +173,12 @@ public class PlayerServiceImpl implements IPlayerService {
                 Long startTimeLong = System.currentTimeMillis() - playerWinRateReq.getDuration() * 86400 * 1000;
                 Date startDate = new Date(startTimeLong);
                 predicate = cb.and(predicate, cb.greaterThan(matchHistoryRoot.get("startTime"), startDate));
+            }
+            // subQuery是组排的matchIdList，1是单排，所以是notIn，2是组排，所以是in
+            if (teamStatus == individual) {
+                predicate = cb.and(predicate, cb.not(root.get("matchId").in(groupMatchIdList)));
+            } else if (teamStatus == group) {
+                predicate = cb.and(predicate, root.get("matchId").in(groupMatchIdList));
             }
             query.orderBy(cb.desc(matchHistoryRoot.get("matchId")));
             return predicate;
