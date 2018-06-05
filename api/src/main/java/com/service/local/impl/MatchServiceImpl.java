@@ -10,29 +10,30 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import com.dao.MatchHistoryDao;
-import com.dao.MatchPlayerDao;
-import com.dao.entity.MatchHistory;
-import com.dao.entity.MatchPlayer;
-import com.service.local.IHeroService;
-import com.service.local.IMatchService;
-import com.service.steam.ISteamMatchService;
-import com.util.MyJsonNode;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import com.api.req.GetMatchHistoryReq;
-import com.dao.entity.Hero;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.util.JsonMapper;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.api.req.GetMatchHistoryReq;
+import com.dao.MatchHistoryDao;
+import com.dao.MatchPlayerDao;
+import com.dao.entity.Hero;
+import com.dao.entity.MatchHistory;
+import com.dao.entity.MatchPlayer;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.service.local.IHeroService;
+import com.service.local.IMatchService;
+import com.service.steam.ISteamMatchService;
+import com.util.JsonMapper;
+import com.util.MyJsonNode;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Created on 2017/06/15.
@@ -61,7 +62,7 @@ public class MatchServiceImpl implements IMatchService {
     }
 
     @Override
-    public void updateMatchIdBySteamId(String steamId) {
+    public void updateMatchIdsBySteamId(String steamId) {
         List<Long> matchIdList = new ArrayList<>(50);
         List<Hero> heroList = heroServiceImpl.listAll();
         List<Integer> heroIdList = heroList.stream().map(Hero::getId).collect(Collectors.toList());
@@ -147,7 +148,7 @@ public class MatchServiceImpl implements IMatchService {
         String response = steamMatchServiceImpl.getMatchDetailByMatchId(matchId);
         String matchIdNotFound = "Match ID not found";
         if (response.contains(matchIdNotFound)) {
-            log.warn("找不到对应matchId={}的比赛数据，更新matchHistory失败",matchId);
+            log.warn("找不到对应matchId={}的比赛数据，更新matchHistory失败", matchId);
             return;
         }
         JsonNode jsonNode = JsonMapper.nonDefaultMapper().fromJson(response, JsonNode.class);
@@ -183,6 +184,56 @@ public class MatchServiceImpl implements IMatchService {
             matchPlayerList.add(matchPlayer);
         });
         matchPlayerDao.save(matchPlayerList);
+    }
+
+    @Override
+    public void updateMatchIdsByLeagueId(int leagueId, long startMatchId) {
+        List<Long> matchIdList = getMatchIdByLeagueId(leagueId, null);
+        matchIdList = matchIdList.stream().filter(matchId -> matchId >= startMatchId).collect(Collectors.toList());
+        List<Long> existedMatchIdList = matchHistoryDao.findAll(matchIdList).stream().map(MatchHistory::getMatchId)
+                .collect(Collectors.toList());
+        matchIdList.removeAll(existedMatchIdList);
+        List<MatchHistory> matchHistoryList = matchIdList.stream().map(matchId -> {
+            MatchHistory matchHistory = new MatchHistory();
+            matchHistory.setCreatedTime(new Date());
+            matchHistory.setMatchId(matchId);
+            return matchHistory;
+        }).collect(Collectors.toList());
+        matchHistoryDao.save(matchHistoryList);
+    }
+
+    private List<Long> getMatchIdByLeagueId(int leagueId, Long startAtMatchId) {
+        List<Long> matchIdList = new ArrayList<>();
+        GetMatchHistoryReq getMatchHistoryReq = new GetMatchHistoryReq();
+        getMatchHistoryReq.setLeagueId(String.valueOf(leagueId));
+        getMatchHistoryReq.setStartAtMatchId(startAtMatchId);
+        String result = steamMatchServiceImpl.getMatchHistory(getMatchHistoryReq);
+        /*
+         * 如果用户没有开放权限，是没法拉到用户比赛数据的
+         */
+        String cannotGetMatchHistoryForAUserThatHasNotAllowedIt = "Cannot get match history for a user that hasn't allowed it";
+        // 如果用户没有开放权限，是没法拉到用户比赛数据的
+        if (result.contains(cannotGetMatchHistoryForAUserThatHasNotAllowedIt)) {
+            return new ArrayList<>();
+        }
+        JsonNode resultNode = JsonMapper.nonDefaultMapper().fromJson(result, JsonNode.class);
+        String matchesPath = "matches";
+        for (JsonNode node : resultNode.findPath(matchesPath)) {
+            matchIdList.add(node.findValue("match_id").asLong());
+        }
+        int remainingCount = resultNode.findValue("results_remaining").asInt();
+        if (remainingCount > 0) {
+            // 给matchIdList排序，取最早的一个id，新的list从这个开始（包含这个，需要distinct）
+            Collections.sort(matchIdList);
+            Long newStartAtMatchId = matchIdList.get(0) > matchIdList.get(matchIdList.size() - 1)
+                    ? matchIdList.get(matchIdList.size() - 1)
+                    : matchIdList.get(0);
+            if (!Objects.equals(newStartAtMatchId, startAtMatchId)) {
+                List<Long> childMatchIdList = getMatchIdByLeagueId(leagueId, newStartAtMatchId);
+                matchIdList.addAll(childMatchIdList);
+            }
+        }
+        return matchIdList.stream().distinct().collect(Collectors.toList());
     }
 
     private MatchHistory convertMatchNodeToMatchHistory(MyJsonNode matchNode) {
