@@ -30,7 +30,7 @@ public class ItemServiceImpl implements IItemService {
 
     @Override
     public Item findById(int itemId) {
-        return itemDao.getOne(itemId);
+        return itemDao.findOne(itemId);
     }
 
 }
