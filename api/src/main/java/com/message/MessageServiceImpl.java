@@ -2,6 +2,7 @@ package com.message;
 
 import com.config.Config;
 import com.util.JsonMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -21,6 +22,7 @@ import java.util.UUID;
  *
  * @author zhiqiang bao
  */
+@Slf4j
 @Service
 public class MessageServiceImpl implements IMessageService {
 
@@ -34,7 +36,7 @@ public class MessageServiceImpl implements IMessageService {
     private String url = "https://yun.tim.qq.com/v5/tlssmssvr/sendsms?";
 
     @Override
-    public void sendMessage(long cellphone, String message) {
+    public String sendMessage(long cellphone, String message) {
         String randomString = UUID.randomUUID().toString();
         url = url + "sdkappid=" + config.getAppId() + "&random=" + randomString;
         Map<String, Object> data = new HashMap<>(10);
@@ -57,10 +59,10 @@ public class MessageServiceImpl implements IMessageService {
         RestTemplate restTemplate = new RestTemplate();
         try {
             ResponseEntity<String> result = restTemplate.postForEntity(url, formEntity, String.class);
-            String resultString = result.getBody();
-            System.out.println(resultString);
+            return result.getBody();
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            log.error(e.getMessage());
+            return null;
         }
     }
 }

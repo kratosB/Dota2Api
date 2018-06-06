@@ -9,9 +9,12 @@ public interface IMessageService {
 
     /**
      * 发送短信
-     * 
+     *
      * @param cellphone
      *            电话号码
+     * @param message
+     *            短信内容
+     * @return 短信发送情况
      */
-    void sendMessage(long cellphone,String message);
+    String sendMessage(long cellphone, String message);
 }
