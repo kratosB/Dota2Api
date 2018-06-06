@@ -68,6 +68,13 @@ public class MatchEndpoint {
     public void updateMatchIdsByLeagueId(
             @ApiParam(name = "leagueId", required = true) @RequestParam(name = "leagueId") int leagueId,
             @ApiParam(name = "matchId", required = true) @RequestParam(name = "matchId") long matchId) {
+        if (leagueId == 0) {
+            logger.info("开始从steam，根据leagueId和正赛第一场matchId，批量更新比赛Id，leagueId = 0，无法找到对应的正式比赛信息");
+            throw new RuntimeException("开始从steam，根据leagueId和正赛第一场matchId，批量更新比赛Id，leagueId = 0，无法找到对应的正式比赛信息");
+        } else if (matchId == 0L) {
+            logger.info("开始从steam，根据leagueId和正赛第一场matchId，批量更新比赛Id，matchId = 0，没有正赛第一场比赛id，无法找到正赛信息");
+            throw new RuntimeException("开始从steam，根据leagueId和正赛第一场matchId，批量更新比赛Id，matchId = 0，没有正赛第一场比赛id，无法找到正赛信息");
+        }
         logger.info("开始从steam，根据leagueId和正赛第一场matchId，批量更新比赛Id，leagueId = {}", leagueId);
         matchServiceImpl.updateMatchIdsByLeagueId(leagueId, matchId);
         logger.info("结束从steam，根据leagueId和正赛第一场matchId，批量更新比赛Id，leagueId = {}", leagueId);

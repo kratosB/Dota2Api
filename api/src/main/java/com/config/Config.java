@@ -41,6 +41,12 @@ public class Config {
     @Value("${admin.steamId}")
     private String adminSteamId;
 
+    @Value("${message_appId}")
+    private String appId;
+
+    @Value("${message_appKey}")
+    private String appKey;
+
     private boolean serviceAvailable;
 
     public void setServiceAvailable(boolean serviceAvailable) {
