@@ -32,9 +32,7 @@ public class DruidConfiguration {
 
     @Bean
     public ServletRegistrationBean druidServlet() {
-        return new ServletRegistrationBean(new StatViewServlet(), new String[] {
-                "/druid/*"
-        });
+        return new ServletRegistrationBean(new StatViewServlet(), "/druid/*");
     }
 
     @Bean
@@ -72,9 +70,7 @@ public class DruidConfiguration {
     public FilterRegistrationBean filterRegistrationBean() {
         FilterRegistrationBean filterRegistrationBean = new FilterRegistrationBean();
         filterRegistrationBean.setFilter(new WebStatFilter());
-        filterRegistrationBean.addUrlPatterns(new String[] {
-                "/*"
-        });
+        filterRegistrationBean.addUrlPatterns("/*");
         filterRegistrationBean.addInitParameter("exclusions", "*.js,*.gif,*.jpg,*.png,*.css,*.ico,/druid/*");
         return filterRegistrationBean;
     }

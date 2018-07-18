@@ -20,7 +20,7 @@ public interface IPlayerService {
      * @param steamId
      *            steamId64
      */
-    public void updatePlayerDataBySteamId(String steamId);
+    void updatePlayerDataBySteamId(String steamId);
 
     /**
      * 根据steamId64，更新用户的好友的数据到本地数据库
@@ -28,7 +28,7 @@ public interface IPlayerService {
      * @param steamId
      *            steamId64
      */
-    public void updateFriendDataBySteamId(String steamId);
+    void updateFriendDataBySteamId(String steamId);
 
     /**
      * 查找选手
