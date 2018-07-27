@@ -1,4 +1,4 @@
-package com.api;
+package com.api.message;
 
 import com.message.IMessageService;
 import io.swagger.annotations.ApiOperation;
