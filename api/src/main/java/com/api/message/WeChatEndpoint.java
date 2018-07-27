@@ -67,24 +67,15 @@ public class WeChatEndpoint {
                 + "</FromUserName> <CreateTime>" + createTime
                 + "</CreateTime> <MsgType>< ![CDATA[text] ]></MsgType> <Content>< ![CDATA[你好] ]></Content> </xml>";
 
-        XStream xstream = new XStream(new DomDriver());
-        ReplyTextMessage we = new ReplyTextMessage();
-        we.setMessageType("text");
-        we.setCreateTime(createTime);
-        we.setContent("你好");
-        we.setToUserName(fromUserName);
-        we.setFromUserName(toUserName);
-        xstream.alias("xml", ReplyTextMessage.class);
-        xstream.aliasField("ToUserName", ReplyTextMessage.class, "toUserName");
-        xstream.aliasField("FromUserName", ReplyTextMessage.class, "fromUserName");
-        xstream.aliasField("CreateTime", ReplyTextMessage.class, "createTime");
-        xstream.aliasField("MsgType", ReplyTextMessage.class, "messageType");
-        xstream.aliasField("Content", ReplyTextMessage.class, "content");
-        xstream.aliasField("FuncFlag", ReplyTextMessage.class, "funcFlag");
-        String xml = xstream.toXML(we);
+        String resu = "<xml><ToUserName><![CDATA[ocvx61UWOeagnNNK0VIXxKy4QLR0]]></ToUserName>"+
+                "<FromUserName><![CDATA[gh_e212cb0dd23b]]></FromUserName>"+
+                "<CreateTime>1532685145</CreateTime>"+
+                "<MsgType><![CDATA[text]]></MsgType>"+
+                "<Content><![CDATA[23]]></Content>"+
+                "</xml>";
 
-        log.info(xml);
-        return xml;
+
+        return resu;
     }
 
     @GetMapping("/weChat/getAccessToken")
