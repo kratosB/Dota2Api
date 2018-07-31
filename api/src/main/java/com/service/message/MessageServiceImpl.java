@@ -1,4 +1,4 @@
-package com.message;
+package com.service.message;
 
 import com.config.Config;
 import com.util.JsonMapper;

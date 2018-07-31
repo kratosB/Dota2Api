@@ -1,6 +1,6 @@
 package com.api.message;
 
-import com.message.IMessageService;
+import com.service.message.IMessageService;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
