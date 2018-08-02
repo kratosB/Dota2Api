@@ -1,9 +1,17 @@
 package com.api.message;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import com.util.JsonMapper;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -13,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.service.message.IWeChatService;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.client.RestTemplate;
 
 /**
  * Created on 2018/7/18.
@@ -101,10 +110,10 @@ public class WeChatEndpoint {
     }
 
     @GetMapping("api/weChat/sendMsg")
-    public void sendMsg(@RequestParam(value = "toUser") String toUser,@RequestParam(value = "message") String message) {
-        log.info("开始发送微信消息，toUser = {}，message = {}",toUser, message);
+    public void sendMsg(@RequestParam(value = "toUser") String toUser, @RequestParam(value = "message") String message) {
+        log.info("开始发送微信消息，toUser = {}，message = {}", toUser, message);
         toUser = "oYSUd1Nx3Ucq-1CHCDrMijbtX4x8";
-        weChatService.sendMessage(toUser,message);
+        weChatService.sendMessage(toUser, message);
         log.info("结束发送微信消息");
     }
 
@@ -114,6 +123,89 @@ public class WeChatEndpoint {
         log.info("开始发送微信模板消息，toUser = {}，templateCode = {}，customerName = {}", toUser, templateCode, customerName);
         weChatService.sendTemplateMessage(toUser, templateCode, customerName);
         log.info("结束发送微信模板消息");
+    }
+
+    @GetMapping("api/weChat/createButton")
+    public void createButton() {
+        log.info("开始创建按钮");
+        String url = "https://api.weixin.qq.com/cgi-bin/menu/create?access_token=" + getAccessToken();
+
+        String linkUrl = "https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxbc1447205bc4595c&redirect_uri="
+                + "http://45.32.178.154/api/redirectLocation?userInfo=12345678"
+                + "&response_type=code&scope=snsapi_userinfo&state=1#wechat_redirect";
+
+        Map<String, Object> subButtonMap1 = new HashMap<>();
+        subButtonMap1.put("type", "view");
+        subButtonMap1.put("name", "搜索");
+        subButtonMap1.put("url", linkUrl);
+
+        Map<String, Object> subButtonMap3 = new HashMap<>();
+        subButtonMap3.put("type", "click");
+        subButtonMap3.put("name", "赞一下我们");
+        subButtonMap3.put("key", "V1001_GOOD");
+
+        List<Object> subButtonList = new ArrayList<>();
+        subButtonList.add(subButtonMap1);
+        subButtonList.add(subButtonMap3);
+
+        Map<String, Object> buttonMap = new HashMap<>();
+        buttonMap.put("type", "click");
+        buttonMap.put("name", "今日歌曲");
+        buttonMap.put("key", "V1001_TODAY_MUSIC");
+
+        Map<String, Object> buttonMap2 = new HashMap<>();
+        buttonMap2.put("name", "菜单");
+        buttonMap2.put("sub_button", subButtonList);
+
+        List<Object> buttonList = new ArrayList<>();
+        buttonList.add(buttonMap);
+        buttonList.add(buttonMap2);
+
+        Map<String, Object> dataMap = new HashMap<>();
+        dataMap.put("button", buttonList);
+
+        HttpHeaders headers = new HttpHeaders();
+        MediaType type = MediaType.parseMediaType("application/json; charset=UTF-8");
+        headers.setContentType(type);
+        headers.add("Accept", MediaType.APPLICATION_JSON.toString());
+        HttpEntity<String> formEntity = new HttpEntity<>(JsonMapper.nonEmptyMapper().toJson(dataMap), headers);
+        RestTemplate restTemplate = new RestTemplate();
+        try {
+            ResponseEntity<String> responseEntity = restTemplate.postForEntity(url, formEntity, String.class);
+            log.info(responseEntity.getBody());
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
+
+        log.info("结束创建按钮");
+    }
+
+    @GetMapping("api/weChat/deleteButton")
+    public void deleteButton() {
+        String url = "https://api.weixin.qq.com/cgi-bin/menu/delete?access_token=" + getAccessToken();
+        RestTemplate restTemplate = new RestTemplate();
+        try {
+            ResponseEntity<String> responseEntity = restTemplate.getForEntity(url, String.class);
+            log.info(responseEntity.getBody());
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
+    }
+
+    @GetMapping("api/redirectLocation")
+    public void redirectLocation(@RequestParam(name = "code", required = false) String code,
+            @RequestParam(name = "userInfo", required = false) String userInfo) {
+        log.info("redirectLocation，code = {}，userInfo = {}", code, userInfo);
+        String url = "https://api.weixin.qq.com/sns/oauth2/access_token?"
+                + "appid=wxbc1447205bc4595c&secret=62684f65ae416250b512c3970adcd3d6&code=" + code
+                + "&grant_type=authorization_code";
+        RestTemplate restTemplate = new RestTemplate();
+        try {
+            ResponseEntity<String> responseEntity = restTemplate.getForEntity(url, String.class);
+            log.info(responseEntity.getBody());
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
     }
 
     private boolean validate(String signature, String timestamp, String nonce) {

@@ -11,7 +11,7 @@ public interface IWeChatService {
 
     /**
      * 获取access_token
-     * 
+     *
      * @return access_token
      */
     String getAccessToken();
@@ -26,7 +26,24 @@ public interface IWeChatService {
      */
     void sendMessage(String toUser, String message);
 
+    /**
+     * 发送模板消息给关注的人
+     * 
+     * @param toUser
+     *            接收人的openId
+     * @param templateCode
+     *            模板id
+     * @param customerName
+     *            模板中的参数
+     */
     void sendTemplateMessage(String toUser, String templateCode, String customerName);
 
+    /**
+     * 生成包含参数的临时二维码
+     * 
+     * @param sceneId
+     *            参数
+     * @return 二维码信息
+     */
     Map<String, String> createQRCode(String sceneId);
 }
