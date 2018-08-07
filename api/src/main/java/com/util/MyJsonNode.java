@@ -1,9 +1,10 @@
 package com.util;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import lombok.Data;
-
 import java.util.Objects;
+
+import com.fasterxml.jackson.databind.JsonNode;
+
+import lombok.Data;
 
 /**
  * Created on 2018/5/26.

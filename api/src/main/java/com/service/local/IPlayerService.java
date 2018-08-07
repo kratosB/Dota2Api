@@ -1,11 +1,11 @@
 package com.service.local;
 
+import java.util.List;
+
 import com.api.req.GetPlayerInfoReq;
 import com.api.req.PlayerWinRateReq;
 import com.api.vo.PlayerWinRateVo;
 import com.dao.entity.Player;
-
-import java.util.List;
 
 /**
  * Created on 2018/5/16.

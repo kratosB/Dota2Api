@@ -1,5 +1,7 @@
 package com.service.steam.impl;
 
+import org.springframework.stereotype.Service;
+
 import com.api.req.GetMatchHistoryReq;
 import com.bean.match.MatchDetail;
 import com.bean.match.MatchDetailEntity;
@@ -7,7 +9,6 @@ import com.config.Config;
 import com.service.steam.ISteamMatchService;
 import com.util.Gateway;
 import com.util.JsonMapper;
-import org.springframework.stereotype.Service;
 
 /**
  * Created on 2018/5/21.

@@ -1,10 +1,11 @@
 package com.dao;
 
-import com.dao.entity.Relation;
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
-import java.util.List;
+import com.dao.entity.Relation;
 
 /**
  * Created on 2018/5/3.
