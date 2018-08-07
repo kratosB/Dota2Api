@@ -1,4 +1,4 @@
-package com.service.message;
+package com.message.service;
 
 /**
  * Created on 2018/6/6.
