@@ -1,4 +1,4 @@
-package com.service.message;
+package com.wechat.service;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -24,16 +24,33 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class WeChatServiceImpl implements IWeChatService {
 
-    private final String weChatApiAddress = "https://api.weixin.qq.com/";
+    private final String weChatApiAddress = "https://api.weixin.qq.com";
+
+    private String appId = "wxbc1447205bc4595c";
+
+    private String appKey = "62684f65ae416250b512c3970adcd3d6";
 
     @Override
     public String getAccessToken() {
-        String appId = "wxbc1447205bc4595c";
-        String appKey = "62684f65ae416250b512c3970adcd3d6";
-        String grantType = "client_credential";
-        String url = weChatApiAddress + "/cgi-bin/token?appid=" + appId + "&secret=" + appKey + "&grant_type=" + grantType;
+        String grantType = "&grant_type=client_credential";
+        String url = weChatApiAddress + "/cgi-bin/token?appid=" + appId + "&secret=" + appKey + grantType;
         RestTemplate restTemplate = new RestTemplate();
         String result = restTemplate.getForObject(url, String.class);
+        JavaType mapType = JsonMapper.nonEmptyMapper().contructMapType(HashMap.class, String.class, String.class);
+        Map<String, String> resultMap = JsonMapper.nonEmptyMapper().fromJson(result, mapType);
+        String accessToken = resultMap.get("access_token");
+        log.info("accessToken = {}", accessToken);
+        return accessToken;
+    }
+
+    @Override
+    public String getAuthToken(String code) {
+        String grantType = "&grant_type=authorization_code";
+        String url = weChatApiAddress + "/sns/oauth2/access_token?appid=" + appId + "&secret=" + appKey + "&code=" + code
+                + grantType;
+        RestTemplate restTemplate = new RestTemplate();
+        String result = restTemplate.getForObject(url, String.class);
+        log.info("authorization_code = {}", result);
         JavaType mapType = JsonMapper.nonEmptyMapper().contructMapType(HashMap.class, String.class, String.class);
         Map<String, String> resultMap = JsonMapper.nonEmptyMapper().fromJson(result, mapType);
         String accessToken = resultMap.get("access_token");

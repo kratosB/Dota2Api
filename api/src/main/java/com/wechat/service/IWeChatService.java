@@ -1,4 +1,4 @@
-package com.service.message;
+package com.wechat.service;
 
 import java.util.Map;
 
@@ -15,6 +15,15 @@ public interface IWeChatService {
      * @return access_token
      */
     String getAccessToken();
+
+    /**
+     * 根据微信回调传来的code，获取authorization_code
+     * 
+     * @param code
+     *            code作为换取access_token的票据，每次用户授权带上的code将不一样，code只能使用一次，5分钟未被使用自动过期。
+     * @return authorization_code
+     */
+    String getAuthToken(String code);
 
     /**
      * 发送消息给关注的人

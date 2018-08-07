@@ -1,4 +1,4 @@
-package com.api.message;
+package com.wechat.api;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.service.message.IWeChatService;
+import com.wechat.service.IWeChatService;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.client.RestTemplate;
@@ -131,17 +131,17 @@ public class WeChatEndpoint {
         String url = "https://api.weixin.qq.com/cgi-bin/menu/create?access_token=" + getAccessToken();
 
         String linkUrl = "https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxbc1447205bc4595c&redirect_uri="
-                + "http://45.32.178.154/api/redirectLocation?userInfo=12345678"
+                + "http%3a%2f%2ftest1.iqunxing.com%2fauth%2fwechat%2fmenu%3furl%3dhttp%3a%2f%2fwww.baidu.com"
                 + "&response_type=code&scope=snsapi_userinfo&state=1#wechat_redirect";
 
         Map<String, Object> subButtonMap1 = new HashMap<>();
         subButtonMap1.put("type", "view");
-        subButtonMap1.put("name", "搜索");
+        subButtonMap1.put("name", "menu1");
         subButtonMap1.put("url", linkUrl);
 
         Map<String, Object> subButtonMap3 = new HashMap<>();
         subButtonMap3.put("type", "click");
-        subButtonMap3.put("name", "赞一下我们");
+        subButtonMap3.put("name", "testClick");
         subButtonMap3.put("key", "V1001_GOOD");
 
         List<Object> subButtonList = new ArrayList<>();
@@ -150,8 +150,8 @@ public class WeChatEndpoint {
 
         Map<String, Object> buttonMap = new HashMap<>();
         buttonMap.put("type", "click");
-        buttonMap.put("name", "今日歌曲");
-        buttonMap.put("key", "V1001_TODAY_MUSIC");
+        buttonMap.put("name", "点击绑定");
+        buttonMap.put("key", "eventKey");
 
         Map<String, Object> buttonMap2 = new HashMap<>();
         buttonMap2.put("name", "菜单");
@@ -196,16 +196,7 @@ public class WeChatEndpoint {
     public void redirectLocation(@RequestParam(name = "code", required = false) String code,
             @RequestParam(name = "userInfo", required = false) String userInfo) {
         log.info("redirectLocation，code = {}，userInfo = {}", code, userInfo);
-        String url = "https://api.weixin.qq.com/sns/oauth2/access_token?"
-                + "appid=wxbc1447205bc4595c&secret=62684f65ae416250b512c3970adcd3d6&code=" + code
-                + "&grant_type=authorization_code";
-        RestTemplate restTemplate = new RestTemplate();
-        try {
-            ResponseEntity<String> responseEntity = restTemplate.getForEntity(url, String.class);
-            log.info(responseEntity.getBody());
-        } catch (Exception e) {
-            log.error(e.getMessage());
-        }
+        weChatService.getAuthToken(code);
     }
 
     private boolean validate(String signature, String timestamp, String nonce) {
