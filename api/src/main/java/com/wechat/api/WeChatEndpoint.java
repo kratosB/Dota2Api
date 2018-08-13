@@ -1,15 +1,25 @@
 package com.wechat.api;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Map;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
 
+import com.util.JaxbUtil;
+import com.wechat.api.req.MessageReq;
 import com.wechat.service.IWeChatService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -55,26 +65,32 @@ public class WeChatEndpoint {
             log.info("获取到外部get请求，验证不通过");
             return null;
         }
-        String fromUserName = getValueFromMessage(message, "<FromUserName>", "</FromUserName>");
-        log.info("fromUserName = {}", fromUserName);
 
-        String toUserName = getValueFromMessage(message, "<ToUserName>", "</ToUserName>");
-        log.info("toUserName = {}", toUserName);
-
-        String createTime = getValueFromMessage(message, "<CreateTime>", "</CreateTime>");
-        log.info("createTime = {}", createTime);
-
-        String content = "Content";
-        if (message.contains(content)) {
-            content = getValueFromMessage(message, "<Content>", "</Content>");
-            log.info("content = {}", content);
+        JaxbUtil jaxbUtil = new JaxbUtil(MessageReq.class);
+        MessageReq messageReq = jaxbUtil.fromXml(message);
+        String event = "event";
+        String text = "text";
+        if (StringUtils.equals(messageReq.getMsgType(), text)) {
+            log.info("收到文本消息，fromUser = {},createTime = {},content = {}", messageReq.getFromUserName(), messageReq.getCreateTime(),
+                    messageReq.getContent());
+            String result = "<xml> <ToUserName>" + messageReq.getFromUserName() + "</ToUserName> <FromUserName>"
+                    + messageReq.getToUserName() + "</FromUserName> <CreateTime>" + messageReq.getCreateTime()
+                    + "</CreateTime> <MsgType><![CDATA[text]]></MsgType> <Content><![CDATA[你好]]></Content> </xml>";
+            log.info(result);
+            return result;
+        } else if (StringUtils.equals(messageReq.getMsgType(), event)) {
+            log.info("收到事件消息，fromUser = {},createTime = {},event = {}", messageReq.getFromUserName(), messageReq.getCreateTime(),
+                    messageReq.getEvent());
+            return null;
+        } else {
+            log.info("收到其他消息，fromUser = {},createTime = {},messageType = {}", messageReq.getFromUserName(),
+                    messageReq.getCreateTime(), messageReq.getMsgType());
+            String result = "<xml> <ToUserName>" + messageReq.getFromUserName() + "</ToUserName> <FromUserName>"
+                    + messageReq.getToUserName() + "</FromUserName> <CreateTime>" + messageReq.getCreateTime()
+                    + "</CreateTime> <MsgType><![CDATA[text]]></MsgType> <Content><![CDATA[你好]]></Content> </xml>";
+            log.info(result);
+            return result;
         }
-
-        String result = "<xml> <ToUserName>" + fromUserName + "</ToUserName> <FromUserName>" + toUserName
-                + "</FromUserName> <CreateTime>" + createTime
-                + "</CreateTime> <MsgType><![CDATA[text]]></MsgType> <Content><![CDATA[你好]]></Content> </xml>";
-        log.info(result);
-        return result;
     }
 
     @GetMapping("api/weChat/getAccessToken")
@@ -93,6 +109,19 @@ public class WeChatEndpoint {
         return resultMap;
     }
 
+    @GetMapping("api/weChat/getQRCode")
+    public ResponseEntity<byte[]> getQRCode(@RequestParam(value = "sceneId") String sceneId) {
+        Map<String, String> qrCode = createQRCode(sceneId);
+        String url = "https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=" + qrCode.get("ticket");
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_OCTET_STREAM));
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+        ResponseEntity<byte[]> response = restTemplate.exchange(url, HttpMethod.GET, entity, byte[].class);
+        response.getHeaders().forEach((key, value) -> log.info(key + " = " + value));
+        return response;
+    }
+
     private boolean validate(String signature, String timestamp, String nonce) {
         log.info("开始验证请求是否是从微信来的，timestamp = {}，nonce = {}，signature = {}", timestamp, nonce, signature);
         String token = "bzq";
@@ -107,12 +136,6 @@ public class WeChatEndpoint {
         String generateCode = DigestUtils.sha1Hex(sb.toString());
         log.info("generateCode:" + generateCode);
         return generateCode.equals(signature);
-    }
-
-    private String getValueFromMessage(String message, String pre, String post) {
-        int preIndex = message.indexOf(pre) + pre.length();
-        int postIndex = message.indexOf(post);
-        return message.substring(preIndex, postIndex);
     }
 
 }

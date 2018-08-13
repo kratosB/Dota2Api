@@ -6,6 +6,9 @@ spring:
     username: ${sql_username}
     password: ${sql_password}
     driver-class-name: com.mysql.jdbc.Driver
+  redis:
+    host: ${sql_ip_address}
+    port: 6379
 #  jpa:
                    #    show-sql: true
 
