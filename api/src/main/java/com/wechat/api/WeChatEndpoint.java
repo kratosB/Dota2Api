@@ -73,11 +73,6 @@ public class WeChatEndpoint {
         if (StringUtils.equals(messageReq.getMsgType(), text)) {
             log.info("收到文本消息，fromUser = {},createTime = {},content = {}", messageReq.getFromUserName(), messageReq.getCreateTime(),
                     messageReq.getContent());
-            String result = "<xml> <ToUserName>" + messageReq.getFromUserName() + "</ToUserName> <FromUserName>"
-                    + messageReq.getToUserName() + "</FromUserName> <CreateTime>" + messageReq.getCreateTime()
-                    + "</CreateTime> <MsgType><![CDATA[text]]></MsgType> <Content><![CDATA[你好]]></Content> </xml>";
-            log.info(result);
-            return result;
         } else if (StringUtils.equals(messageReq.getMsgType(), event)) {
             log.info("收到事件消息，fromUser = {},createTime = {},event = {}", messageReq.getFromUserName(), messageReq.getCreateTime(),
                     messageReq.getEvent());
@@ -85,12 +80,12 @@ public class WeChatEndpoint {
         } else {
             log.info("收到其他消息，fromUser = {},createTime = {},messageType = {}", messageReq.getFromUserName(),
                     messageReq.getCreateTime(), messageReq.getMsgType());
-            String result = "<xml> <ToUserName>" + messageReq.getFromUserName() + "</ToUserName> <FromUserName>"
-                    + messageReq.getToUserName() + "</FromUserName> <CreateTime>" + messageReq.getCreateTime()
-                    + "</CreateTime> <MsgType><![CDATA[text]]></MsgType> <Content><![CDATA[你好]]></Content> </xml>";
-            log.info(result);
-            return result;
         }
+        String result = "<xml> <ToUserName>" + messageReq.getFromUserName() + "</ToUserName> <FromUserName>"
+                + messageReq.getToUserName() + "</FromUserName> <CreateTime>" + messageReq.getCreateTime()
+                + "</CreateTime> <MsgType><![CDATA[text]]></MsgType> <Content><![CDATA[你好]]></Content> </xml>";
+        log.info(result);
+        return result;
     }
 
     @GetMapping("api/weChat/getAccessToken")

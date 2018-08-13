@@ -3,6 +3,9 @@ package com.wechat.service;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -26,9 +29,17 @@ public class WeChatServiceImpl implements IWeChatService {
 
     private final String weChatApiAddress = "https://api.weixin.qq.com";
 
-    private String appId = "wxbc1447205bc4595c";
+    private String appId = "1";
 
-    private String appKey = "62684f65ae416250b512c3970adcd3d6";
+    private String appKey = "2";
+
+    @Autowired
+    public WeChatServiceImpl(RedisTemplate<String, String> redisTemplate) {
+        ValueOperations<String, String> stringObjectValueOperations = redisTemplate.opsForValue();
+        appId = stringObjectValueOperations.get("appId");
+        appKey = stringObjectValueOperations.get("appKey");
+        log.info("appId = {}, appKey = {}", appId, appKey);
+    }
 
     @Override
     public String getAccessToken() {
