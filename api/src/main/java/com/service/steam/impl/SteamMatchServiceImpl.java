@@ -62,7 +62,7 @@ public class SteamMatchServiceImpl implements ISteamMatchService {
         if (getMatchHistoryReq.getDateMin() != null) {
             sb.append("date_min=").append(getMatchHistoryReq.getDateMin()).append(config.getApiAnd());
         }
-        return gateway.getForObject(sb.toString());
+        return gateway.getForString(sb.toString());
     }
 
     @Override
@@ -70,7 +70,7 @@ public class SteamMatchServiceImpl implements ISteamMatchService {
         String getMatchDetails = "GetMatchDetails/";
         String matchIdStr = "match_id=" + matchId;
         String getHeroUrl = config.getIDota2Url() + getMatchDetails + config.getApiVersion() + matchIdStr + config.getApiAnd();
-        return gateway.getForObject(getHeroUrl);
+        return gateway.getForString(getHeroUrl);
     }
 
     @Override
@@ -78,7 +78,7 @@ public class SteamMatchServiceImpl implements ISteamMatchService {
         String getMatchDetails = "GetMatchDetails/";
         String matchIdStr = "match_id=" + matchId;
         String getHeroUrl = config.getIDota2Url() + getMatchDetails + config.getApiVersion() + matchIdStr + config.getApiAnd();
-        String response = gateway.getForObject(getHeroUrl);
+        String response = gateway.getForString(getHeroUrl);
         MatchDetailEntity matchDetailEntity = JsonMapper.nonDefaultMapper().fromJson(response, MatchDetailEntity.class);
         return matchDetailEntity.getResult();
     }

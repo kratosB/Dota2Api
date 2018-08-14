@@ -70,7 +70,7 @@ public class PlayerServiceImpl implements IPlayerService {
         String steamIdKey = "steamid=";
         String getFriendListUrl = config.getSteamUserUrl() + getFriendList + config.getApiVersion() + steamIdKey + steamId
                 + config.getApiAnd();
-        String response = gateway.getForObject(getFriendListUrl);
+        String response = gateway.getForString(getFriendListUrl);
         JsonNode jsonNodes = JsonMapper.nonDefaultMapper().fromJson(response, JsonNode.class);
         JsonNode friendNodes = jsonNodes.findPath("friends");
         StringBuilder steamIdsBuilder = new StringBuilder();
@@ -226,7 +226,7 @@ public class PlayerServiceImpl implements IPlayerService {
         String steamIdsKey = "steamids=";
         String getPlayerSummariesUrl = config.getSteamUserUrl() + getPlayerSummaries + version + steamIdsKey + steamIds
                 + config.getApiAnd();
-        String response = gateway.getForObject(getPlayerSummariesUrl);
+        String response = gateway.getForString(getPlayerSummariesUrl);
         JsonNode jsonNodes = JsonMapper.nonDefaultMapper().fromJson(response, JsonNode.class);
         JsonNode playerNodes = jsonNodes.findPath("players");
         List<Player> playerList = new ArrayList<>();

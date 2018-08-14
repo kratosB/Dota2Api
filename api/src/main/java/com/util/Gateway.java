@@ -40,8 +40,12 @@ public class Gateway {
         config.setServiceAvailable(true);
     }
 
-    public String getForObject(String url) {
+    public String getForString(String url) {
         return getForObject(url, String.class);
+    }
+
+    public Object getForObject(String url) {
+        return getForObject(url, Object.class);
     }
 
     private <T> T getForObject(String url, Class<T> clazz) {

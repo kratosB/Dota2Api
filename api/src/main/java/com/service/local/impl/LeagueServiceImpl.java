@@ -49,7 +49,7 @@ public class LeagueServiceImpl implements ILeagueService {
         String getLeagueListing = "GetLeagueListing/";
         String getLeagueListingUrl = config.getIDota2Url() + getLeagueListing + config.getApiVersion() + config.getApiLanguage()
                 + config.getApiAnd();
-        String response = gateway.getForObject(getLeagueListingUrl);
+        String response = gateway.getForString(getLeagueListingUrl);
         return JsonMapper.nonDefaultMapper().fromJson(response, LeaguesEntity.class);
     }
 
@@ -59,7 +59,7 @@ public class LeagueServiceImpl implements ILeagueService {
         String leagueIdStr = "league_id=" + leagueId;
         String getMatchHistoryUrl = config.getIDota2Url() + getMatchHistory + config.getApiVersion() + leagueIdStr
                 + config.getApiAnd();
-        String response = gateway.getForObject(getMatchHistoryUrl);
+        String response = gateway.getForString(getMatchHistoryUrl);
         return JsonMapper.nonDefaultMapper().fromJson(response, MatchesEntity.class);
     }
 
