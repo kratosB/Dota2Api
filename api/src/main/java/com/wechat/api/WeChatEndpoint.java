@@ -6,16 +6,8 @@ import java.util.Map;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.*;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
 import com.util.JaxbUtil;
@@ -74,8 +66,31 @@ public class WeChatEndpoint {
             log.info("收到文本消息，fromUser = {},createTime = {},content = {}", messageReq.getFromUserName(), messageReq.getCreateTime(),
                     messageReq.getContent());
         } else if (StringUtils.equals(messageReq.getMsgType(), event)) {
-            log.info("收到事件消息，fromUser = {},createTime = {},event = {}", messageReq.getFromUserName(), messageReq.getCreateTime(),
-                    messageReq.getEvent());
+            log.info("收到事件消息，fromUser = {},createTime = {},event = {},key = {}", messageReq.getFromUserName(),
+                    messageReq.getCreateTime(), messageReq.getEvent(), messageReq.getEventKey());
+            String result;
+            switch (messageReq.getEventKey()) {
+                case "WIFI":
+                    break;
+                case "WIFI_ACCOUNT":
+                    result = "<xml> <ToUserName>" + messageReq.getFromUserName() + "</ToUserName> <FromUserName>"
+                            + messageReq.getToUserName() + "</FromUserName> <CreateTime>" + messageReq.getCreateTime()
+                            + "</CreateTime> <MsgType><![CDATA[text]]></MsgType> <Content><![CDATA[WIFI账号是ChinaNet-TmVx]]></Content> </xml>";
+                    log.info(result);
+                    return result;
+                case "WIFI_PASSWORD":
+                    result = "<xml> <ToUserName>" + messageReq.getFromUserName() + "</ToUserName> <FromUserName>"
+                            + messageReq.getToUserName() + "</FromUserName> <CreateTime>" + messageReq.getCreateTime()
+                            + "</CreateTime> <MsgType><![CDATA[text]]></MsgType> <Content><![CDATA[WIFI密码是uhhehvuc]]></Content> </xml>";
+                    log.info(result);
+                    return result;
+                default:
+                    result = "<xml> <ToUserName>" + messageReq.getFromUserName() + "</ToUserName> <FromUserName>"
+                            + messageReq.getToUserName() + "</FromUserName> <CreateTime>" + messageReq.getCreateTime()
+                            + "</CreateTime> <MsgType><![CDATA[text]]></MsgType> <Content><![CDATA[你好]]></Content> </xml>";
+                    log.info(result);
+                    return result;
+            }
             return null;
         } else {
             log.info("收到其他消息，fromUser = {},createTime = {},messageType = {}", messageReq.getFromUserName(),

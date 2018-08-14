@@ -47,27 +47,33 @@ public class WeChatMenuEndpoint {
         subButtonMap1.put("name", "menu1");
         subButtonMap1.put("url", linkUrl);
 
-        Map<String, Object> subButtonMap3 = new HashMap<>(3);
-        subButtonMap3.put("type", "click");
-        subButtonMap3.put("name", "testClick");
-        subButtonMap3.put("key", "V1001_GOOD");
+        Map<String, Object> subButtonMap2 = new HashMap<>(3);
+        subButtonMap2.put("type", "click");
+        subButtonMap2.put("name", "获取WIFI账号");
+        subButtonMap2.put("key", "WIFI_ACCOUNT");
 
         List<Object> subButtonList = new ArrayList<>(2);
         subButtonList.add(subButtonMap1);
-        subButtonList.add(subButtonMap3);
+        subButtonList.add(subButtonMap2);
 
-        Map<String, Object> buttonMap = new HashMap<>(3);
-        buttonMap.put("type", "click");
-        buttonMap.put("name", "点击绑定");
-        buttonMap.put("key", "eventKey");
+        Map<String, Object> buttonMap1 = new HashMap<>(3);
+        buttonMap1.put("type", "click");
+        buttonMap1.put("name", "获取WIFI");
+        buttonMap1.put("key", "WIFI");
 
-        Map<String, Object> buttonMap2 = new HashMap<>(2);
-        buttonMap2.put("name", "菜单");
-        buttonMap2.put("sub_button", subButtonList);
+        Map<String, Object> buttonMap2 = new HashMap<>(3);
+        buttonMap2.put("type", "click");
+        buttonMap2.put("name", "获取WIFI密码");
+        buttonMap2.put("key", "WIFI_PASSWORD");
+
+        Map<String, Object> buttonMap3 = new HashMap<>(2);
+        buttonMap3.put("name", "菜单");
+        buttonMap3.put("sub_button", subButtonList);
 
         List<Object> buttonList = new ArrayList<>(2);
-        buttonList.add(buttonMap);
+        buttonList.add(buttonMap1);
         buttonList.add(buttonMap2);
+        buttonList.add(buttonMap3);
 
         Map<String, Object> dataMap = new HashMap<>(1);
         dataMap.put("button", buttonList);
