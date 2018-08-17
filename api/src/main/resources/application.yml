@@ -23,7 +23,6 @@ steam:
     version:
       v1: v1/?
     key:
-      first: key=EFA1E81676FCC47157EA871A67741EF5
       second: key=203567935DB339ED47B8D3941A471E1D
       third: key=513EF62DDF1E62889C0022E7C668EAD0
     and: "&"

@@ -82,8 +82,7 @@ public class Gateway {
     private String getKey() {
         String key;
         if (keyList.isEmpty()) {
-            key = config.getApiKey1();
-            keyList.add(config.getApiKey2());
+            key = config.getApiKey2();
             keyList.add(config.getApiKey3());
         } else {
             key = keyList.get(0);

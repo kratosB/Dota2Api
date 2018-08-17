@@ -29,9 +29,9 @@ public class WeChatServiceImpl implements IWeChatService {
 
     private final String weChatApiAddress = "https://api.weixin.qq.com";
 
-    private String appId = "1";
+    private String appId ;
 
-    private String appKey = "2";
+    private String appKey ;
 
     @Autowired
     public WeChatServiceImpl(RedisTemplate<String, String> redisTemplate) {
@@ -98,12 +98,15 @@ public class WeChatServiceImpl implements IWeChatService {
         Map<String, String> customerNameMap = new HashMap<>(2);
         customerNameMap.put("value", customerName);
         customerNameMap.put("color", "#173177");
+
         Map<String, Object> data = new HashMap<>(1);
         data.put("customerName", customerNameMap);
+
         Map<String, Object> dataMap = new HashMap<>(3);
         dataMap.put("touser", toUser);
         dataMap.put("template_id", templateCode);
         dataMap.put("data", data);
+        dataMap.put("url", "http://www.qq.com");
         HttpHeaders headers = new HttpHeaders();
         MediaType type = MediaType.parseMediaType("application/json; charset=UTF-8");
         headers.setContentType(type);

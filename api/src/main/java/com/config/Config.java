@@ -24,9 +24,6 @@ public class Config {
     @Value("${steam.api.version.v1}")
     private String apiVersion;
 
-    @Value("${steam.api.key.first}")
-    private String apiKey1;
-
     @Value("${steam.api.key.second}")
     private String apiKey2;
 
