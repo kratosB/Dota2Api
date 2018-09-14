@@ -39,7 +39,7 @@ public class WeChatMenuEndpoint {
         String url = "https://api.weixin.qq.com/cgi-bin/menu/create?access_token=" + weChatService.getAccessToken();
 
         String linkUrl = "https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxbc1447205bc4595c&redirect_uri="
-                + "http%3a%2f%2ftest1.iqunxing.com%2fauth%2fwechat%2fmenu%3furl%3dhttp%3a%2f%2fwww.baidu.com"
+                + "http%3a%2f%2ftest1.iqunxing.com%2fauth%2fwechat%2fmenu%3furl%3d%2fchain%2f%23%2fgetPayment"
                 + "&response_type=code&scope=snsapi_userinfo&state=1#wechat_redirect";
 
         Map<String, Object> subButtonMap1 = new HashMap<>(3);
