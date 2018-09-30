@@ -24,6 +24,13 @@ import lombok.extern.slf4j.Slf4j;
 public class HealthCheckEndpoint {
 
     @Autowired
+    public HealthCheckEndpoint(RedisTemplate<String, String> redisTemplate){
+     this.redisTemplate = redisTemplate;
+    }
+
+    /**
+     * 这边如果用<String,Object>，传入的String就会以"\"dsdsds\""这种形式存在
+     */
     private RedisTemplate<String, String> redisTemplate;
 
     @ApiOperation("health check")
