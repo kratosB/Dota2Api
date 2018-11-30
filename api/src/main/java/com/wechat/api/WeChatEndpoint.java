@@ -2,10 +2,14 @@ package com.wechat.api;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Map;
 
+import com.dao.MemoDao;
+import com.dao.entity.Memo;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -35,8 +39,12 @@ public class WeChatEndpoint {
 
     private IWeChatService weChatService;
 
-    public WeChatEndpoint(IWeChatService weChatService) {
+    private MemoDao memoDao;
+
+    @Autowired
+    public WeChatEndpoint(IWeChatService weChatService,MemoDao memoDao) {
         this.weChatService = weChatService;
+        this.memoDao = memoDao;
     }
 
     @GetMapping("/weChat")
@@ -73,6 +81,13 @@ public class WeChatEndpoint {
         if (StringUtils.equals(messageReq.getMsgType(), text)) {
             log.info("收到文本消息，fromUser = {},createTime = {},content = {}", messageReq.getFromUserName(), messageReq.getCreateTime(),
                     messageReq.getContent());
+            String openId = messageReq.getFromUserName();
+            String content = messageReq.getContent();
+            Memo memo = new Memo();
+            memo.setOpenId(openId);
+            memo.setContent(content);
+            memo.setCreatedTime(new Date());
+            memoDao.save(memo);
         } else if (StringUtils.equals(messageReq.getMsgType(), event)) {
             log.info("收到事件消息，fromUser = {},createTime = {},event = {},key = {}", messageReq.getFromUserName(),
                     messageReq.getCreateTime(), messageReq.getEvent(), messageReq.getEventKey());
