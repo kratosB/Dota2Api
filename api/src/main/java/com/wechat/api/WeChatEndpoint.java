@@ -6,8 +6,16 @@ import java.util.Map;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.http.*;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
 import com.util.JaxbUtil;
@@ -52,9 +60,9 @@ public class WeChatEndpoint {
             @RequestParam(name = "nonce", required = false) String nonce, @RequestBody(required = false) String message) {
         log.info("获取到外部post请求, signature = {}, timestamp = {}, nonce = {}, message = {}", signature, timestamp, nonce, message);
         if (signature != null && validate(signature, timestamp, nonce)) {
-            log.info("获取到外部get请求，验证通过");
+            log.info("获取到外部post请求，验证通过");
         } else {
-            log.info("获取到外部get请求，验证不通过");
+            log.info("获取到外部post请求，验证不通过");
             return null;
         }
 
